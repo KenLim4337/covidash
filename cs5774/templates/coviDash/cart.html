@@ -1,0 +1,19 @@
+{% extends "coviDash/base.html" %}
+{% load static %}
+
+{% block title %} Your Rumours {% endblock %}
+
+{% block content %}
+<!--Cart section-->
+    <section class="cart-section">
+        <h1>Your List (<span class="cart-number">0</span>)</h1>
+        <div class="cart-inner">
+            <ul id="cart">
+                
+            </ul>
+            <div class="cart-cta">
+                <a href="{% url "coviDash:home" %}" class="blue-cta login-btn">Add to my Dashboard!</a>
+            </div>
+        </div>
+    </section>
+{% endblock %}

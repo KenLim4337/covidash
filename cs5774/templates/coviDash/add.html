@@ -1,0 +1,61 @@
+{% extends "coviDash/base.html" %}
+{% load static %}
+
+{% block title %}
+    {% if rumour %} 
+    Edit a Rumour
+    {% else %} 
+    Add a Rumour
+    {% endif %}
+{% endblock %} 
+
+{% block content %}
+<section class="rumour-form">
+    {% if messages %}
+    {% for message in messages %}
+        <div class="dbMessage">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <!--Conditionals to separate edit from add-->
+    <h1>
+        {% if rumour %} 
+        Edit a Rumour: 
+        {% else %} 
+        Add a Rumour
+        {% endif %}
+    </h1>
+
+    {% if rumour %} 
+    <h2>{{ rumour.title }}</h2>
+    {% endif %}
+
+    
+    {% if rumour %} {% endif %}
+    <div class="rumour-form-inner">
+        <!--New class for light backgrounds-->
+        <p>* = Required</p>
+        <form class="form-dark" action=
+        {% if rumour %} 
+        "{% url "coviDash:edit-rumour" rumour.id %}"
+        {% else %} 
+        "{% url "coviDash:add-rumour" %}"
+        {% endif %} method="POST">
+            {% csrf_token %}
+            <label for="title">Title*</label>
+            <input type="text" id="title" name="title" placeholder="Put the title of your rumour here, e.g. Liar, liar, pants on fire" {% if rumour %}value="{{ rumour.title }}"{% endif %} required>
+
+            <label for="description">1-Sentence Summary*</label>
+            <textarea id="description" name="description" rows="4" cols="50" placeholder="One sentence to describe your rumour..." required>{% if rumour %}{{ rumour.description }}{% endif %}</textarea>
+
+            <label for="bodytext">Body HTML*</label>
+            <textarea id="bodytext" name="bodytext" rows="4" cols="50" placeholder="All the details of your rumour here..." required>{% if rumour %}{{ rumour.bodyHtml }}{% endif %}</textarea>
+
+            <label for="picture">Picture*</label>
+            <input type="url" id="picture" name="picture" placeholder="Put the URL of the display picture here" {% if rumour %}value="{{ rumour.img }}"{% endif %} required>
+
+            <input type="submit" value={% if rumour %}"Edit Rumour"{% else %}"Add Rumour"{% endif %}>
+        </form>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,352 @@
+{% extends "coviDash/base.html" %}
+{% load static %}
+
+{% block title %} Fighting Covid Misinformation in the DMV {% endblock %}
+
+{% block content %}
+
+{% if request.session.username %}
+<!--Logged in stuff-->
+<section class="dash-wrap logged-content">
+    <div class="dash-inner">
+        <div class="dash-row">
+
+            <!--Rumour blocks (first 3)-->
+            {% for rumour in rumours %}
+            {% if rumour.id in userData.added|slice:":-1" %}
+            <div class="module-tile dash-module">
+                <div class="close"></div>
+                <div class="tile-image">
+                    <img src="{{ rumour.img }}" alt="{{ rumour.title }}">
+                    <div class="validity">
+                        {% if rumour.validity == "True" %}
+                        <span class='tick'></span><span>True</span>
+                        {% elif rumour.validity == "False" %}
+                        <span class='cross'></span><span>False</span>
+                        {% elif rumour.validity == "Mixed" %}
+                        <span class='mixed'></span><span>Mixed</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="tile-content">
+                    <h3 class="title">{{ rumour.title }}</h3>
+
+                    <div class="decription">{{ rumour.description }}</div>
+
+                    <!--Made up stats-->
+                    {% if rumour.verusers > 0 or rumour.versource > 0 %}
+                    <div class="validation-stats">
+                        Verified by <span class="validation-numbers">
+                            {% if rumour.verusers > 0 %}
+                            {{ rumour.verusers }} Users
+                            {% if rumour.versource > 0 %}
+                            and {{ rumour.versource }} Sources
+                            {% endif %}
+                            {% elif rumour.versource > 0 %}
+                            {{ rumour.versource }} Sources
+                            {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <div class="source">
+                        Poster: <span>{{ rumour.poster }}</span>
+                    </div>
+                </div>
+
+                <div class="tile-cta">
+                    <a class="blue-cta" href="{% url "coviDash:rumour-detail" rumour.id %}">Read More</a>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+
+            <!--2 stats per block-->
+            <div class="stats-block dash-module tile4">
+                <div class="stats-wrap">
+                    <div class="stats">
+                        <!--Screenshotted from the Washington Post-->
+                        <img src="{% static 'img/dmv-covid-cases.png'%}" alt="DMV Covid Cases Graph">
+                    </div>
+                    <div class="stat-label">
+                        Covid Cases in the DMV
+                    </div>
+                </div>
+                <div class="stats-wrap">
+                    <div class="stats">
+                        <!--Screenshotted from the Washington Post-->
+                        <img src="{% static 'img/fairfax-covid-cases-60day.png'%}" alt="DMV Covid Cases Graph">
+                    </div>
+                    <div class="stat-label">
+                        Covid Cases in Fairfax County, VA
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!--Row with full tile-->
+        <div class="dash-row">
+            <!--Last rumour gets a full tile-->
+            {% for rumour in rumours %}
+            {% if rumour.id == userData.added|last %}
+            <div class="module-tile dash-module-full">
+                <div class="tile-image">
+                    <img src="{{ rumour.img }}" alt="{{ rumour.title }}">
+                    <div class="validity">
+                        {% if rumour.validity == "True" %}
+                        <span class='tick'></span><span>True</span>
+                        {% elif rumour.validity == "False" %}
+                        <span class='cross'></span><span>False</span>
+                        {% elif rumour.validity == "Mixed" %}
+                        <span class='mixed'></span><span>Mixed</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="tile-content">
+                    <h3 class="title">{{ rumour.title }}</h3>
+
+                    <div class="decription">{{ rumour.description }}</div>
+
+                    <!--Made up stats-->
+                    {% if rumour.verusers > 0 or rumour.versource > 0 %}
+                    <div class="validation-stats">
+                        Verified by <span class="validation-numbers">
+                            {% if rumour.verusers > 0 %}
+                            {{ rumour.verusers }} Users
+                            {% if rumour.versource > 0 %}
+                            and {{ rumour.versource }} Sources
+                            {% endif %}
+                            {% elif rumour.versource > 0 %}
+                            {{ rumour.versource }} Sources
+                            {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <div class="source">
+                        Poster: <span>{{ rumour.poster }}</span>
+                    </div>
+                </div>
+
+                <div class="tile-cta">
+                    <a class="blue-cta" href="{% url "coviDash:rumour-detail" rumour.id %}">Read More</a>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+
+            <!--Account block-->
+            <div class="account-block dash-module">
+                <div class="dash-account-details">
+                    <!--Icon from freeicons.io-->
+                    <div class="user-icon">
+                        <img src="{% static 'img/user-icon.png' %}" alt="User Icon">
+                    </div>
+                    <div class="user-details">
+                        <div class="user-name">
+                            {{ request.session.username }}
+                        </div>
+                        <div class="user-title">
+                            {{ userData.title }}
+                        </div>
+                        <a href="#">Profile</a>
+                    </div>
+                </div>
+
+                <div class="dash-account-stats">
+                    <div class="account-posted">
+                        <div class="dash-stat-title">
+                            Rumours Posted
+                        </div>
+
+                        <div class="dash-stat-number">
+                            {{ userData.posted }}
+                        </div>
+                    </div>
+                    <div class="account-cited">
+                        <div class="dash-stat-title">
+                            Sources Cited
+                        </div>
+
+                        <div class="dash-stat-number">
+                            {{ userData.cited }}
+                        </div>
+
+                    </div>
+                    <div class="account-solved">
+                        <div class="dash-stat-title">
+                            Rumours Solved
+                        </div>
+
+                        <div class="dash-stat-number">
+                            {{ userData.solved }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dash-account-ctas">
+                    <a href="{% url "coviDash:rumours" %}" class="blue-cta"><span class="magni-glass"><img
+                                src="{% static 'img/magnifying-glass.png' %}" alt="Magnifying Glass"></span>Explore
+                        Modules</a>
+                    <a href="{% url "coviDash:add-rumour" %}" class="blue-cta"><span class="plus"></span> Add a Rumour</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="tile-set feat-rumours logged-content">
+    <h2 class="accordion-head">Featured Rumours <span class="chev-up"></span></h2>
+
+    <div class="module-group-wrapper">
+        <div class="module-group-inner">
+            <!--Other unadded rumours-->
+            {% for rumour in rumours|slice:":8"%}
+
+            {% if rumour.id not in userData.added %}
+            <div class="module-tile">
+                <div class="tile-image">
+                    <img src="{{ rumour.img }}" alt="{{ rumour.title }}">
+                    <div class="validity">
+                        {% if rumour.validity == "True" %}
+                        <span class='tick'></span><span>True</span>
+                        {% elif rumour.validity == "False" %}
+                        <span class='cross'></span><span>False</span>
+                        {% elif rumour.validity == "Mixed" %}
+                        <span class='mixed'></span><span>Mixed</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="tile-content">
+                    <h3 class="title">{{ rumour.title }}</h3>
+
+                    <div class="decription">{{ rumour.description }}</div>
+                    
+                    {% if rumour.verusers > 0 or rumour.versource > 0 %}
+                    <div class="validation-stats">
+                        Verified by <span class="validation-numbers">
+                            {% if rumour.verusers > 0 %}
+                            {{ rumour.verusers }} Users
+                            {% if rumour.versource > 0 %}
+                            and {{ rumour.versource }} Sources
+                            {% endif %}
+                            {% elif rumour.versource > 0 %}
+                            {{ rumour.versource }} Sources
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    <div class="source">
+                        Poster: <span>{{ rumour.poster }}</span>
+                    </div>
+                </div>
+
+                <div class="tile-cta">
+                    <a class="blue-cta to-cart" href="#" data-id="{{ rumour.id }}">Add to Dashboard</a>
+                    <a class="read-cta" href="{% url "coviDash:rumour-detail" rumour.id %}">Read More</a>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% else %}
+<section class="hero-wrap out-content">
+    <div class="carousel">
+        <div class="carousel-tile">
+            <!--Sourced from unsplash.com, credit Chris Grafton @grafton360-->
+            <img src="{% static 'img/chris-grafton-mRxHNzxeYt8-unsplash.jpg'%}" alt="Promo">
+
+            <div class="carousel-tile-inner">
+
+                <h1 class="carousel-tile-text">Fighting Covid Misinformation in the DMV</h1>
+                <a href="{% url "coviDash:rumours" %}" class="carousel-tile-cta">Get Started Now!</a>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="hero-right">
+        <div class="hero-stats-wrap">
+            <div class="stats">
+                <!--Screenshotted from the Washington Post-->
+                <img src="{% static 'img/dmv-covid-cases.png'%}" alt="DMV Covid Cases Graph">
+            </div>
+            <div class="stat-label">
+                Covid Cases in the DMV
+            </div>
+        </div>
+        <div class="account-cta-wrap">
+            <div class="sign-in-message"><a href="#" class="login-btn">Sign in</a> for <strong>Your
+                    Personalized
+                    Dashboard!</strong></div>
+            <div class="register-message"><em>No account? <a href="#" class="login-btn">Register Now</a>!</em>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="tile-set feat-rumours out-content">
+    <h2>Featured Rumours</h2> <a href="{% url "coviDash:rumours" %}">See more ></a>
+
+    <div class="module-group-wrapper">
+        <div class="module-group-inner">
+            {% for rumour in rumours|slice:":4" %}
+
+            <div class="module-tile">
+                <div class="tile-image">
+                    <img src="{{ rumour.img }}" alt="{{ rumour.title }}">
+                    <div class="validity">
+                        {% if rumour.validity == "True" %}
+                        <span class='tick'></span><span>True</span>
+                        {% elif rumour.validity == "False" %}
+                        <span class='cross'></span><span>False</span>
+                        {% elif rumour.validity == "Mixed" %}
+                        <span class='mixed'></span><span>Mixed</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="tile-content">
+                    <h3 class="title">{{ rumour.title }}</h3>
+
+                    <div class="decription">{{ rumour.description }}</div>
+
+                    {% if rumour.verusers > 0 or rumour.versource > 0 %}
+                    <div class="validation-stats">
+                        Verified by <span class="validation-numbers">
+                            {% if rumour.verusers > 0 %}
+                            {{ rumour.verusers }} Users
+                            {% if rumour.versource > 0 %}
+                            and {{ rumour.versource }} Sources
+                            {% endif %}
+                            {% elif rumour.versource > 0 %}
+                            {{ rumour.versource }} Sources
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    <div class="source">
+                        Poster: <span>{{ rumour.poster }}</span>
+                    </div>
+                </div>
+
+                <div class="tile-cta">
+                    <a class="blue-cta to-cart" href="#" data-id="{{ rumour.id }}">Add to Dashboard</a>
+                    <a class="read-cta" href="{% url "coviDash:rumour-detail" rumour.id %}">Read More</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

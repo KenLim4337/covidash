@@ -1,0 +1,311 @@
+{% extends "coviDash/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %} {{ rumour.title }} {% endblock %}
+
+{% block content %}
+<article>
+    <div class="article-inner">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="dbMessage alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
+        <h1>{{ rumour.title }}</h1>
+
+        <p class="author">Posted by: <em>{{ rumour.poster }}</em></p>
+        <p class="date">{{ rumour.date|naturaltime }}</p>
+
+        <div class="main-content">
+
+            <!--This will be floated-->
+            <div class="article-img">
+                <img src="{{ rumour.img }}" alt="{{ rumour.title }}">
+            </div>
+
+            <div class="article-content">
+                <!--Controls-->
+
+                <div class="controls">
+                    {% if request.session.role == "admin" %}
+                    <form class="delete-form" action="{% url "coviDash:remove-rumour" %}" method="POST"
+                        data-id="{{ rumour.id }}" data-title="{{ rumour.title }}">
+                        {% csrf_token %}
+                        <input type="hidden" id="rumourId" name="rumourId" value="{{ rumour.id }}">
+                        <input type="submit" value="Delete">
+                    </form>
+                    {% endif %}
+
+                    {% if request.session.role == "admin" or request.session.username == rumour.poster %}
+                    <a class="edit-btn" href="{% url "coviDash:edit-rumour" rumour.id %}">Edit</a>
+                    {% endif %}
+                </div>
+
+                <!--Article validity, vote swings, etc-->
+                <div class="article-meta">
+                    <div class="validity">
+                        {% if rumour.validity == "True" %}
+                        <span class='tick'></span><span>True</span>
+                        {% elif rumour.validity == "False" %}
+                        <span class='cross'></span><span>False</span>
+                        {% elif rumour.validity == "Mixed" %}
+                        <span class='mixed'></span><span>Mixed</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="validation-stats">
+                        Verified by <span class="validation-numbers">
+                            <span class="usernum">{{ rumour.verusers }}</span> <a href="#vote">Users</a>
+                            and <span class="sourcenum">{{ rumour.versource }}</span> <a href="#sources">Sources</a>
+                    </div>
+
+                    <div class="validation-charts">
+                        <div class="source-chart" data-true="{{ rumour.versourceT }}"
+                            data-false="{{ rumour.versourceF }}">
+                            <div class="chart-title">
+                                Sources
+                            </div>
+                            <div class="pie"></div>
+                            <div class="percentage">
+                                <span class="percent-number">100%</span> <strong>{{ rumour.validity }}</strong>
+                            </div>
+                        </div>
+                        <div class="user-chart" data-true="{{ rumour.verusersT }}" data-false="{{ rumour.verusersF }}">
+                            <div class="chart-title">
+                                Users
+                            </div>
+                            <div class="pie"></div>
+                            <div class="percentage">
+                                <span class="percent-number">95%</span> <strong>{{ rumour.validity }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="article-description">
+                    {{ rumour.description }}
+                </div>
+
+                <div class="article-body">
+                    {% autoescape off %}
+                    {{ rumour.bodyHtml }}
+                    {% endautoescape %}
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+
+    <!--Source and comments still static for now untill DB is fully setup-->
+    <div class="social-section">
+
+        {% if request.session.username %}
+        <!--New! Vote Block-->
+        <div class="vote-block" id='vote'>
+            <h2 class="accordion-head">Vote</span></h2>
+            <div class="vote-upload">
+                <div class="form-title">
+                    I think this is:
+                </div>
+
+                <select name="votetrue" id="votetrue" data-id="{{ rumour.id }}">
+                    <option value="" disabled selected>Select validity</option>
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                </select>
+
+                <div class="vote-submit blue-cta" data-ajax-url="{% url "coviDash:vote" %}">Vote!</div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!--Comment section-->
+        <div class="comment-block" id="comments">
+            <h2 class="accordion-head">Comments (20) <span class="chev-up"></span></h2>
+
+            <div class="article-comments">
+                <ul>
+                    <li>
+                        <div class="upvotes">
+                            <div class="chev-up"></div>
+                            <div class="vote-number">-120</div>
+                            <div class="chev-down"></div>
+                        </div>
+                        <!--Icon from freeicons.io-->
+                        <div class="user-icon">
+                            <a href="#">
+                                <img src="{% static "img/user-icon.png" %}" alt="User Icon">
+                            </a>
+                        </div>
+                        <div class="comment-body">
+                            <div class="user-name">
+                                <a href="#">User 23412</a>
+                            </div>
+                            <div class="truth">
+                                <div class="validity">
+                                    <span class="tick"></span><span>True</span>
+                                </div>
+                            </div>
+                            <div class="comment-text">
+                                Sounds like something he'd say. This reeks of a coverup.
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="upvotes">
+                            <div class="chev-up"></div>
+                            <div class="vote-number">113</div>
+                            <div class="chev-down"></div>
+                        </div>
+                        <div class="user-icon">
+                            <a href="#">
+                                <img src="{% static "img/user-icon.png" %}" alt="User Icon">
+                            </a>
+                        </div>
+                        <div class="comment-body">
+                            <div class="user-name">
+                                <a href="#">User 132</a>
+                            </div>
+                            <div class="truth">
+                                <div class="validity">
+                                    <span class="cross"></span><span>False</span>
+                                </div>
+                            </div>
+                            <div class="comment-text">
+                                Clearly taken out of context. I can't with the internet anymore.
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="upvotes">
+                            <div class="chev-up"></div>
+                            <div class="vote-number">210</div>
+                            <div class="chev-down"></div>
+                        </div>
+                        <div class="user-icon">
+                            <a href="#">
+                                <img src="{% static "img/user-icon.png" %}" alt="User Icon">
+                            </a>
+                        </div>
+                        <div class="comment-body">
+                            <div class="user-name">
+                                <a href="#">User 1401</a>
+                            </div>
+                            <div class="truth">
+                                <div class="validity">
+                                    <span class="cross"></span><span>False</span>
+                                </div>
+                            </div>
+                            <div class="comment-text">
+                                I watched the briefing live. Just Facebook being Facebook again I guess.
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="upvotes">
+                            <div class="chev-up"></div>
+                            <div class="vote-number">80</div>
+                            <div class="chev-down"></div>
+                        </div>
+                        <div class="user-icon">
+                            <a href="#">
+                                <img src="{% static "img/user-icon.png" %}" alt="User Icon">
+                            </a>
+                        </div>
+                        <div class="comment-body">
+                            <div class="user-name">
+                                <a href="#">User 4392</a>
+                            </div>
+                            <div class="truth">
+                                <div class="validity">
+                                    <span class="cross"></span><span>False</span>
+                                </div>
+                            </div>
+                            <div class="comment-text">
+                                It takes about 30 seconds to find the full briefing on Youtube... Check your sources
+                                people!
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+
+                <a href="#" class="blue-cta">See More</a>
+
+
+                {% if request.session.username %}
+                <div class="article-comment-upload">
+                    <form class="form-dark" action="#">
+                        <div class="form-title">
+                            Add a Comment
+                        </div>
+
+                        <label for="commenttrue">Do you think this is...</label>
+
+                        <select name="commenttrue" id="commenttrue">
+                            <option value="" disabled selected>Select validity</option>
+                            <option value="true">True</option>
+                            <option value="false">False</option>
+                        </select>
+
+                        <textarea id="commentbody" name="commentbody"
+                            placeholder="What do you think about this rumour?"></textarea>
+
+                        <input type="submit" value="Comment">
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+
+
+        </div>
+
+        <div class="source-block" id="sources">
+            <h2 class="accordion-head">Sources (2) <span class="chev-up"></span></h2>
+            <div class="article-sources">
+                <ul>
+                    <li>
+                        <!--Referenced from https://www.reuters.com/world/us/biden-urge-americans-hurricane-prone-states-get-covid-19-shots-2021-08-10/-->
+                        <span class="title">Biden urges Americans in hurricane-prone states to get COVID-19 shots,
+                        </span><span class="date">10 August 2021, </span><span class="source"><a target="_blank"
+                                href="https://www.reuters.com/world/us/biden-urge-americans-hurricane-prone-states-get-covid-19-shots-2021-08-10/">reuters.com</a></span>
+                    </li>
+                    <li>
+                        <!--Referenced from https://www.whitehouse.gov/briefing-room/statements-releases/2021/08/10/readout-of-president-joseph-r-biden-jr-meeting-on-hurricane-preparedness-during-covid-19-pandemic/-->
+                        <span class="title">Readout of President Joseph R. Biden, Jr. Meeting on Hurricane Preparedness
+                            During COVID-19 Pandemic, </span><span class="date">10 August 2021, </span><span
+                            class="source"><a target="_blank"
+                                href="https://www.whitehouse.gov/briefing-room/statements-releases/2021/08/10/readout-of-president-joseph-r-biden-jr-meeting-on-hurricane-preparedness-during-covid-19-pandemic/">whitehouse.gov</a></span>
+                    </li>
+                </ul>
+
+                {% if request.session.username %}
+                <!--Form to add sources-->
+                <div class="article-source-upload">
+                    <form class="form-dark" action="#">
+                        <div class="form-title">
+                            Suggest a Source
+                        </div>
+
+                        <input type="text" id="sourcetitle" name="sourcetitle" placeholder="Title of your source">
+
+                        <input type="text" id="sourcedate" name="sourcedate"
+                            placeholder="Date your source was published">
+
+                        <input type="text" id="sourceorigin" name="sourceorigin" placeholder="Origin of your source">
+
+                        <input type="submit" value="Add Source">
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+
+
+        </div>
+
+    </div>
+</article>
+{% endblock %}

@@ -1,0 +1,148 @@
+<!--Template for listing, search results, admin view-->
+{% extends "coviDash/base.html" %}
+{% load static %}
+
+<!--Conditionals to separate search, admin and listing-->
+{% block title %} 
+{% if request.resolver_match.url_name == "admin" %}
+Admin View
+{% elif request.resolver_match.url_name == "search" %}
+Search Results
+{% else %}
+All Rumours 
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!--Add class onto tile-set to adapt for listing page (long list vs carousel)-->
+<section class="tile-set listing-page">
+    {% if messages %}
+    {% for message in messages %}
+        <div class="dbMessage alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <!--As the urls are named rather conveniently for these, just pull the url name and capitalize-->
+    <h1>{{ request.resolver_match.url_name|title }} </h1>
+
+    <!--Conditionals to separate search, admin and listing-->
+    {% if request.resolver_match.url_name != "admin" %}
+    <div class="sub-title">
+        <div class="content">
+        {% if request.resolver_match.url_name != "search" %}
+        The top Covid Rumours in the DMV today.
+        {% else %}
+        Search results for "<span class="search-term">{{ request.GET.searchquery }}</span>"
+        {% endif %}
+        </div>
+        
+        {% if request.session.username %}
+        <div class="add-rumour-wrap">
+            <div class="list-cta-copy">
+                Can't find what you're looking for?
+            </div>
+            <div class="list-cta">
+                <a class="blue-cta" href="{% url "coviDash:add-rumour" %}">Add a Rumour</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if rumours.count > 0 %}
+    <div class="sort-wrapper">
+        <div class="sort-inner">
+            <div class="sort-title">
+                Sort by:
+            </div>
+        
+            <div class="sort-menu">
+                <div class="active-sort">
+                    <span class="sort-text">
+                        {% if request.GET.sortby %}
+                            {{ request.GET.sortby|title }}
+                        {% else %}
+                            Newest
+                        {% endif %}
+                    </span>
+                    <span class="chev-down"></span>
+                </div>
+                <ul class="sort-options">
+                    <li data-sortby="newest">Newest</li>
+                    <li data-sortby="oldest">Oldest</li>
+                    <li data-sortby="a-z">A-Z</li>
+                    <li data-sortby="z-a">Z-A</li>
+                    <li data-sortby="validity">Validity</li>
+                    <li data-sortby="poster">Poster</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="module-group-wrapper">
+        <div class="module-group-inner">
+            {% for rumour in rumours %}
+            <div class="module-tile">
+                <div class="tile-image">
+                    <img src="{{ rumour.img }}" alt="">
+                    <div class="validity">
+                        {% if rumour.validity == "True" %}
+                        <span class='tick'></span><span>True</span>
+                        {% elif rumour.validity == "False" %}
+                        <span class='cross'></span><span>False</span>
+                        {% elif rumour.validity == "Mixed" %}
+                        <span class='mixed'></span><span>Mixed</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="tile-content">
+                    <h3 class="title">{{ rumour.title }}</h3>
+
+                    <div class="decription">{{ rumour.description }}</div>
+
+                    {% if rumour.verusers > 0 or rumour.versource > 0 %}
+                    <div class="validation-stats">
+                        Verified by <span class="validation-numbers">
+                            {% if rumour.verusers > 0 %}
+                            {{ rumour.verusers }} Users
+                            {% if rumour.versource > 0 %}
+                            and {{ rumour.versource }} Sources
+                            {% endif %}
+                            {% elif rumour.versource > 0 %}
+                            {{ rumour.versource }} Sources
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    <div class="source">
+                        Poster: <span>{{ rumour.poster }}</span>
+                    </div>
+                </div>
+
+                <div class="tile-cta">
+                    {% if request.resolver_match.url_name != "admin" %}
+                    <a class="blue-cta to-cart" href="#" data-id="{{ rumour.id }}">Add to Dashboard</a>
+                    <a class="read-cta" href="{% url "coviDash:rumour-detail" rumour.id %}">Read More</a>
+                    {% else %}
+                    <a class="blue-cta" href="{% url "coviDash:edit-rumour" rumour.id %}">Edit</a>
+                    <a class="read-cta" href="{% url "coviDash:rumour-detail" rumour.id %}">Read More</a>
+
+                    <form class="delete-form" action="{% url "coviDash:remove-rumour" %}" method="POST" data-id="{{ rumour.id }}" data-title="{{ rumour.title }}">
+                        {% csrf_token %}
+                        <input type="hidden" id="rumourId" name="rumourId" value="{{ rumour.id }}">
+                        <input type="submit" value="Delete">
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% empty %}
+            <div class="no-result">Sorry, there are no rumours to be found here...</strong><a href="{% url "coviDash:rumours" %}" class="blue-cta">Browse all Rumours</a></div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
