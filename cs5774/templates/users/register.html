@@ -1,0 +1,46 @@
+{% extends "coviDash/base.html" %}
+{% load static %}
+
+{% block title %}
+    Register for an Account
+{% endblock %} 
+
+{% block content %}
+<section class="registration-form">
+    {% if messages %}
+    {% for message in messages %}
+        <div class="dbMessage">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <!--Conditionals to separate edit from add-->
+    <h1>
+        {% if rumour %} 
+        Edit a Rumour: 
+        {% else %} 
+        Add a Rumour
+        {% endif %}
+    </h1>
+
+    {% if rumour %} 
+    <h2>{{ rumour.title }}</h2>
+    {% endif %}
+
+    
+    {% if rumour %} {% endif %}
+    <div class="rumour-form-inner">
+        <!--New class for light backgrounds-->
+        <p>* = Required</p>
+        <form class="form-dark" action={% url users: %} method="POST">
+            {% csrf_token %}
+            <label for="Name">Name*</label>
+            <input type="text" id="title" name="title" placeholder="Put the title of your rumour here, e.g. Liar, liar, pants on fire" {% if rumour %}value="{{ rumour.title }}"{% endif %} required>
+
+            <label for="Name">Password*</label>
+            <input type="text" id="password" name="password" placeholder="Put the title of your rumour here, e.g. Liar, liar, pants on fire" {% if rumour %}value="{{ rumour.title }}"{% endif %} required>
+
+            <input type="submit" value="Register!">
+        </form>
+    </div>
+</section>
+{% endblock %}
