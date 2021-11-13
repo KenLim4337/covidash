@@ -1,0 +1,26 @@
+{% extends "coviDash/base.html" %}
+
+{% load static %}
+
+{% block title %} {{ user.username }} {% endblock %}
+
+{% block content %}
+
+
+<section class="user-profile">
+    <h1>{{ user.username }}'s Profile</h1>
+
+    <div class="profile-inner">
+        <dl>
+            <dt>User Name</dt>
+            <dd>{{ user.username }}</dd>
+            <dt>Email address</dt>
+            <dd>{{ user.email }}</dd>
+            <dt>Title</dt>
+            <dd>{{ user.details.title }}</dd>
+        </dl>
+    </div>
+
+</section>
+
+{% endblock %}

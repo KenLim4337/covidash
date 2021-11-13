@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.urls import resolve
 from django.http import JsonResponse
-from .models import users, Rumour
+from .models import Rumour
+from django.contrib.auth.models import User
 from django.core import serializers
 
 def home(request):
@@ -10,12 +11,15 @@ def home(request):
     
     #pass detailed user data if logged in for dashboard otherwise empty userData will be passed
     if request.session.get('userid', None) != None:
+        tempUser = User.objects.get(pk=request.session.get('userid', None))
+
         userData = {
-            'added': users[request.session['userid']].added,
-            'posted': users[request.session['userid']].posted,
-            'cited': users[request.session['userid']].cited,
-            'solved': users[request.session['userid']].solved,
-            'title': users[request.session['userid']].title
+            #mess around with added later
+            'added': [1,2,3,4],
+            'posted': tempUser.details.posted,
+            'cited': tempUser.details.cited,
+            'solved': tempUser.details.solved,
+            'title': tempUser.details.title
         }
 
     return render(request, 'coviDash/home.html', {
@@ -92,7 +96,7 @@ def add(request):
             description = addDesc,
             bodyHtml = addBody,
             img = addImg,
-            poster = request.session['username']
+            poster = User.objects.get(pk=request.session.get('userid', None))
         )
 
         newRumour.save()
@@ -154,35 +158,6 @@ def delete(request):
 
     #Sends user back to admin page
     return redirect('coviDash:admin')
-        
-def login(request):
-    #get posted variables
-    username = request.POST.get("username")
-    password = request.POST.get("password")
-    
-    for user in users:
-    #Check over list of users, if present, set session vars
-        if(username.lower() == user.userName.lower()) and (password == user.password):
-            request.session['username'] = user.userName
-            request.session['role'] = user.role
-            request.session['userid'] = user.userId
-
-    #Redirect to same page where login was clicked
-    return redirect(request.META.get('HTTP_REFERER'))
-
-def logout(request):
-    #try catch in case some weird stuff happens and user reaches logout link without actually being logged in
-    try:
-    #remove sesssion variables
-        del request.session['username']
-        del request.session['role']
-        del request.session['userid']
-    except KeyError:
-        print('Key not set')
-
-    #Always redirect back to home on logout
-    return redirect('coviDash:home')
-
 
 def vote(request):
     is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'

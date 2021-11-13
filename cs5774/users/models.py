@@ -1,24 +1,31 @@
 from django.db import models
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from coviDash.models import Rumour
 
-# Create your models here.
-class User(models.Model):
-    def __init__(self, userId, userName, role, title, password, added, posted, cited, solved): 
-        self.userId = userId
-        self.userName = userName
-        self.role = role
-        self.title = title
+class Details(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    role = models.CharField(default="regular", max_length=50)
+    title = models.CharField(default="Amateur Sleuth", max_length=50)
 
-        #Storing passwords as plaintext because i can
-        self.password = password
+    #Number of rumours added
+    posted = models.IntegerField(default=0)
+    #Number of citations
+    cited = models.IntegerField(default=0)
+    #Number of rumours involved in
+    solved = models.IntegerField(default=0)
 
-        #Added rumours
-        self.added = added
+    #Rumours in dashboard
+    added = models.ManyToManyField(Rumour)
 
-        #For homepage tally
-        self.posted = posted
-        self.cited = cited
-        self.solved = solved
+@receiver(post_save, sender=User)
+def create_user_details(sender, instance, created, **kwargs):
+        if created:
+            Details.objects.create(user=instance)
 
-        #Add other user properties/stats later if needed
+@receiver(post_save, sender=User)
+def save_user_details(sender, instance, **kwargs):
+    instance.details.save()
 
         

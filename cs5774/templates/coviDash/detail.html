@@ -15,7 +15,7 @@
 
         <h1>{{ rumour.title }}</h1>
 
-        <p class="author">Posted by: <em>{{ rumour.poster }}</em></p>
+        <p class="author">Posted by: <em>{{ rumour.poster.username }}</em></p>
         <p class="date">{{ rumour.date|naturaltime }}</p>
 
         <div class="main-content">
@@ -38,7 +38,7 @@
                     </form>
                     {% endif %}
 
-                    {% if request.session.role == "admin" or request.session.username == rumour.poster %}
+                    {% if request.session.role == "admin" or request.session.username == rumour.poster.username %}
                     <a class="edit-btn" href="{% url "coviDash:edit-rumour" rumour.id %}">Edit</a>
                     {% endif %}
                 </div>

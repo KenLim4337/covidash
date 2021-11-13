@@ -89,7 +89,9 @@ header .header-inner .search-form {
   margin-top: 15px;
 }
 
-header .header-inner .search-form form input[type="text"] {
+header .header-inner .search-form form input[type="text"], 
+header .header-inner .search-form form input[type="email"]
+header .header-inner .search-form form input[type="password"] {
   margin-bottom: 10px;
   width: calc(60% - 90px);
   max-width: 600px;
@@ -982,7 +984,10 @@ article .controls .edit-btn:hover {
 }
 
 /*Form styling*/
-input[type="text"] {
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="url"] {
   border-width: 0 0 1px 0;
   border-color: #cccccc;
   background: transparent;
@@ -993,92 +998,29 @@ input[type="text"] {
   margin-bottom: 10px;
 }
 
-input[type="text"]::-webkit-input-placeholder {
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder,
+input[type="url"]::placeholder {
   color: #cccccc;
   -webkit-transition: all 0.3s ease;
   transition: all 0.3s ease;
 }
 
-input[type="text"]:-ms-input-placeholder {
-  color: #cccccc;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-input[type="text"]::-ms-input-placeholder {
-  color: #cccccc;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-input[type="text"]::-webkit-input-placeholder {
-  color: #cccccc;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-input[type="text"]::-moz-placeholder {
-  color: #cccccc;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-input[type="text"]:-ms-input-placeholder {
-  color: #cccccc;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-input[type="text"]::placeholder {
-  color: #cccccc;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-input[type="text"]:focus {
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="url"]:focus {
   border-width: 0 0 1px 0;
   border-color: #ffffff;
   -webkit-transition: all 0.3s ease;
   transition: all 0.3s ease;
 }
 
-input[type="text"]:focus::-webkit-input-placeholder {
-  color: #ffffff;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-input[type="text"]:focus:-ms-input-placeholder {
-  color: #ffffff;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-input[type="text"]:focus::-ms-input-placeholder {
-  color: #ffffff;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-input[type="text"]:focus::-webkit-input-placeholder {
-  color: #ffffff;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-input[type="text"]:focus::-moz-placeholder {
-  color: #ffffff;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-input[type="text"]:focus:-ms-input-placeholder {
-  color: #ffffff;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-input[type="text"]:focus::placeholder {
+input[type="text"]:focus::placeholder,
+input[type="email"]:focus::placeholder,
+input[type="password"]:focus::placeholder,
+input[type="url"]:focus::placeholder {
   color: #ffffff;
   -webkit-transition: all 0.3s ease;
   transition: all 0.3s ease;
@@ -2149,11 +2091,17 @@ form.form-dark > label {
   font-size: 1.1rem;
 }
 
-form.form-dark > input[type="text"], form.form-dark > textarea {
+form.form-dark > input[type="text"], form.form-dark > textarea,
+form.form-dark > input[type="email"],
+form.form-dark > input[type="password"],
+form.form-dark > input[type="url"] {
   margin-bottom: 30px;
 }
 
-form.form-dark input[type="text"], form.form-dark textarea {
+form.form-dark input[type="text"], form.form-dark textarea,
+form.form-dark input[type="email"],
+form.form-dark input[type="password"],
+form.form-dark input[type="url"] {
   color: #000000;
   -webkit-transition: all 0.3s ease;
   transition: all 0.3s ease;
@@ -2167,55 +2115,28 @@ form.form-dark textarea {
   border-width: 1px;
 }
 
-form.form-dark input[type="text"]:focus, form.form-dark textarea:focus {
+form.form-dark input[type="text"]:focus, form.form-dark textarea:focus,
+form.form-dark input[type="email"]:focus,
+form.form-dark input[type="password"]:focus,
+form.form-dark input[type="url"]:focus {
   border-color: #055faa;
   -webkit-transition: all 0.3s ease;
   transition: all 0.3s ease;
 }
 
-form.form-dark input[type="text"]::-webkit-input-placeholder, form.form-dark textarea::-webkit-input-placeholder {
+form.form-dark input[type="text"]::placeholder, form.form-dark textarea::placeholder,
+form.form-dark input[type="email"]::placeholder,
+form.form-dark input[type="password"]::placeholder,
+form.form-dark input[type="url"]::placeholder {
   color: #cccccc;
   -webkit-transition: all 0.3s ease;
   transition: all 0.3s ease;
 }
 
-form.form-dark input[type="text"]::-moz-placeholder, form.form-dark textarea::-moz-placeholder {
-  color: #cccccc;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-form.form-dark input[type="text"]:-ms-input-placeholder, form.form-dark textarea:-ms-input-placeholder {
-  color: #cccccc;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-form.form-dark input[type="text"]::placeholder, form.form-dark textarea::placeholder {
-  color: #cccccc;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-form.form-dark input[type="text"]:focus::-webkit-input-placeholder, form.form-dark textarea:focus::-webkit-input-placeholder {
-  color: #055faa;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-form.form-dark input[type="text"]:focus::-moz-placeholder, form.form-dark textarea:focus::-moz-placeholder {
-  color: #055faa;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-form.form-dark input[type="text"]:focus:-ms-input-placeholder, form.form-dark textarea:focus:-ms-input-placeholder {
-  color: #055faa;
-  -webkit-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-}
-
-form.form-dark input[type="text"]:focus::placeholder, form.form-dark textarea:focus::placeholder {
+form.form-dark input[type="text"]:focus::placeholder, form.form-dark textarea:focus::placeholder,
+form.form-dark input[type="email"]:focus::placeholder,
+form.form-dark input[type="password"]:focus::placeholder,
+form.form-dark input[type="url"]:focus::placeholder {
   color: #055faa;
   -webkit-transition: all 0.3s ease;
   transition: all 0.3s ease;
@@ -2439,7 +2360,8 @@ article .social-section .article-sources ul li {
   margin: 10px 0;
 }
 
-article .article-source-upload form.form-dark input[type="text"] {
+article .article-source-upload form.form-dark input[type="text"],
+article .article-source-upload form.form-dark input[type="url"] {
   width: calc(50% - 4px);
   display: inline-block;
   margin-bottom: 20px;
@@ -2626,7 +2548,8 @@ article .social-section .article-comments ul li .comment-body .truth .validity {
   }
 
   /*Source upload*/
-  article .article-source-upload form.form-dark input[type="text"] {
+  article .article-source-upload form.form-dark input[type="text"],
+  article .article-source-upload form.form-dark input[type="url"] {
       width: 100%;
       display: block;
       margin-bottom: 20px;
@@ -2782,4 +2705,35 @@ article .social-section .article-comments ul li .comment-body .truth .validity {
 
 .vote-upload select {
   width: 200px;
+}
+
+.users-page header .header-inner .logo-wrap {
+  position: static;
+  text-align: center;
+}
+
+.users-page main {
+  min-height: calc(100vh - 218px)
+}
+
+.users-page footer {
+  padding: 30px 25px;
+}
+
+.users-page footer .trademark {
+  position: static;
+}
+
+@media all and (max-width: 991px) {
+  .users-page header {
+      height: 75px;
+  }
+  .users-page header .header-inner {
+      display: block;
+      padding: 15px 0;
+  }
+  
+  .users-page main {
+      min-height: calc(100vh - 153px)
+  }
 }

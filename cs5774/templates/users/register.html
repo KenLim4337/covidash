@@ -1,4 +1,4 @@
-{% extends "coviDash/base.html" %}
+{% extends "users/base.html" %}
 {% load static %}
 
 {% block title %}
@@ -13,31 +13,25 @@
     {% endfor %}
     {% endif %}
 
-    <!--Conditionals to separate edit from add-->
     <h1>
-        {% if rumour %} 
-        Edit a Rumour: 
-        {% else %} 
-        Add a Rumour
-        {% endif %}
+        Register User
     </h1>
-
-    {% if rumour %} 
-    <h2>{{ rumour.title }}</h2>
-    {% endif %}
-
     
-    {% if rumour %} {% endif %}
-    <div class="rumour-form-inner">
+    <div class="register-form-inner">
         <!--New class for light backgrounds-->
         <p>* = Required</p>
-        <form class="form-dark" action={% url users: %} method="POST">
+        <form id="register-user" class="form-dark" action={% url "users:register" %} method="POST">
             {% csrf_token %}
-            <label for="Name">Name*</label>
-            <input type="text" id="title" name="title" placeholder="Put the title of your rumour here, e.g. Liar, liar, pants on fire" {% if rumour %}value="{{ rumour.title }}"{% endif %} required>
+            <label for="username">Name*</label>
+            <input type="text" id="username" name="username" placeholder="What is your name?" required>
 
-            <label for="Name">Password*</label>
-            <input type="text" id="password" name="password" placeholder="Put the title of your rumour here, e.g. Liar, liar, pants on fire" {% if rumour %}value="{{ rumour.title }}"{% endif %} required>
+            <label for="email">Email*</label>
+            <input type="email" id="email" name="email" placeholder="What is your email?" required>
+
+            <label for="password">Password*</label>
+            <input type="password" id="password" name="password" placeholder="What is your password?" required>
+
+            <!--Hidden field to hold list of rumours-->
 
             <input type="submit" value="Register!">
         </form>

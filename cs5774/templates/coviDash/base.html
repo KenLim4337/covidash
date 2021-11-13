@@ -122,11 +122,11 @@
                         <div class="account-in">
                             <div class="account-icon">
                                 <!--Icon from freeicons.io-->
-                                <img src="{% static 'img/user-icon.png' %}" alt="User Icon">
+                                <a href="{% url "users:profile" request.session.username|lower %}"><img src="{% static 'img/user-icon.png' %}" alt="User Icon"></a>
                             </div>
                             <div class="account-content">
-                                <div class="account-content-inner">Welcome back <strong>{{ request.session.username }}</strong>! <a href="{% url "coviDash:logout" %}" class="logout-btn">Log Out</a></div>
-                                <a href="#">Notifications (0)</a>
+                                <div class="account-content-inner">Welcome back <strong>{{ request.session.username }}</strong>!</div>
+                                <a href="{% url "users:profile" request.session.username|lower %}">Profile</a> | <a href="{% url "users:logout" %}" class="logout-btn">Log Out</a>
                             </div>
                         </div>
                     {% else %}
@@ -136,7 +136,7 @@
 
                         <div class="formWrap">
                             <div class="formInner">
-                                <form id="login-box" action="{% url "coviDash:login" %}" method="POST">
+                                <form id="login-box" action="{% url "users:login" %}" method="POST">
                                     {% csrf_token %}
                                     <input type="text" name="username" placeholder="Username">
                                     <input type="password" name="password" placeholder="Password">
