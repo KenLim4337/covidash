@@ -27,7 +27,7 @@ SECRET_KEY = 'y+-gcnsq$pkp@w2&kin)2lfsx0rs1r66_s@67_7f1l%c+9m)ep'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['covidash.herokuapp.com', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -141,3 +141,5 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

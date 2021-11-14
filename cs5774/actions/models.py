@@ -6,6 +6,14 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.utils import tree
 from coviDash.models import Rumour, Comment, Source, Vote
 
+verbdict = {
+    "RC": "commented on a rumour",
+    "AS": "added a source to a rumour",
+    "RV": "voted",
+    "AR": "added a rumour",
+    "RE": "edited a rumour"
+}
+
 class Action(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     #Rumour Comment: commented on a rumour, Add Source: added a source to a rumour, Rumour Vote: voted on a rumour, Add Rumour: added a rumour, Rumour Edit: edited a rumour
@@ -15,4 +23,7 @@ class Action(models.Model):
     target = GenericForeignKey('target_ct', 'target_id')
     #Date done
     date = models.DateTimeField(default=datetime.now, blank=True, null=True)
+
+    def get_verb(self): 
+        return verbdict[self.verb]
 
