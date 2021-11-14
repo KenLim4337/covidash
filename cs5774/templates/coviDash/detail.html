@@ -243,7 +243,7 @@
                             Add a Comment
                         </div>
 
-                        <label for="commenttrue">Do you think this is...</label>
+                        <label for="commenttrue">I think this is:</label>
 
                         <select name="commenttrue" id="commenttrue">
                             <option value="" disabled selected>Select validity</option>
@@ -290,12 +290,19 @@
                             Suggest a Source
                         </div>
 
+                        <label for="commenttrue">This source thinks the rumour is:</label>
+
+                        <select name="commenttrue" id="commenttrue">
+                            <option value="" disabled selected>Select validity</option>
+                            <option value="true">True</option>
+                            <option value="false">False</option>
+                        </select>
+
                         <input type="text" id="sourcetitle" name="sourcetitle" placeholder="Title of your source">
 
-                        <input type="text" id="sourcedate" name="sourcedate"
-                            placeholder="Date your source was published">
+                        <input type="url" id="sourceorigin" name="sourceorigin" placeholder="Link to your source">
 
-                        <input type="text" id="sourceorigin" name="sourceorigin" placeholder="Origin of your source">
+                        <input type="date" id="sourcedate" name="sourcedate" placeholder="Date your source was published">
 
                         <input type="submit" value="Add Source">
                     </form>

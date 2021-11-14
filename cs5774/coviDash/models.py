@@ -31,6 +31,17 @@ class Rumour(models.Model):
     bodyHtml = models.TextField(default="HTML Body")
     citation = models.TextField(null=True)
 
-class Comment():
+class Comment(models.Model):
     commenter = models.ForeignKey(User, on_delete=models.CASCADE)
+    rumour = models.ForeignKey(Rumour, on_delete=models.CASCADE)
     body = models.TextField(default="Comment Body")
+    validity = models.CharField(max_length=200, default="False")
+    score = models.IntegerField(default=0)
+
+
+class Source(models.Model):
+    commenter = models.ForeignKey(User, on_delete=models.CASCADE)
+    rumour = models.ForeignKey(Rumour, on_delete=models.CASCADE)
+    url = models.TextField(max_length=200)    
+    date = models.DateTimeField(default=datetime.now, blank=True, null=True)
+    validity = models.CharField(max_length=200, default="False")

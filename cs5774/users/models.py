@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from coviDash.models import Rumour
+from coviDash.models import Rumour, Comment
 
 class Details(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -17,7 +17,13 @@ class Details(models.Model):
     solved = models.IntegerField(default=0)
 
     #Rumours in dashboard
-    added = models.ManyToManyField(Rumour)
+    added = models.ManyToManyField(Rumour, related_name='add_relation')
+
+    #Rumours participated in
+    voted = models.ManyToManyField(Rumour, related_name='vote_relation')
+
+    #Comments voted on
+    updoots = models.ManyToManyField(Comment)
 
 @receiver(post_save, sender=User)
 def create_user_details(sender, instance, created, **kwargs):
