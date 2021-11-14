@@ -25,5 +25,5 @@ class Action(models.Model):
     date = models.DateTimeField(default=datetime.now, blank=True, null=True)
 
     def get_verb(self): 
-        return verbdict[self.verb]
+        return verbdict.get(self.verb)
 

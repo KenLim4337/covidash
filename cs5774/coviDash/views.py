@@ -111,7 +111,7 @@ def add(request):
 
         activityLog = Action(
             user = User.objects.get(pk=request.session.get('userid')),
-            verb = "added a rumour",
+            verb = "AR",
             target = newRumour,
         )
 

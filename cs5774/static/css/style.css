@@ -2250,6 +2250,10 @@ article .article-img {
   margin-bottom: 20px;
 }
 
+article .article-img img {
+  max-height: 310px;
+}
+
 article .article-meta {
   position: relative;
   margin-bottom: 30px;
