@@ -3,15 +3,17 @@ from django.contrib import messages
 from django.urls import resolve
 from django.http import JsonResponse
 from .models import Rumour
+from actions.models import Action
 from django.contrib.auth.models import User
 from django.core import serializers
 
 def home(request):
-    userData = None
-    
     #pass detailed user data if logged in for dashboard otherwise empty userData will be passed
     if request.session.get('userid', None) != None:
         tempUser = User.objects.get(pk=request.session.get('userid', None))
+
+        #Newest first, limit to 20 items
+        actions = Action.objects.all().order_by('-date')[:20]
 
         userData = {
             #mess around with added later
@@ -22,10 +24,16 @@ def home(request):
             'title': tempUser.details.title
         }
 
-    return render(request, 'coviDash/home.html', {
-        'rumours': Rumour.objects.all().order_by('pk'),
-        'userData': userData,
-    })
+        return render(request, 'coviDash/home.html', {
+            'rumours': Rumour.objects.all().order_by('pk'),
+            'userData': userData,
+            'actions': actions
+        })
+    else: 
+        return render(request, 'coviDash/home.html',{
+            'rumours': Rumour.objects.all().order_by('pk')
+        })
+
 
 def cart(request):
     return render(request, 'coviDash/cart.html',{
@@ -96,10 +104,18 @@ def add(request):
             description = addDesc,
             bodyHtml = addBody,
             img = addImg,
-            poster = User.objects.get(pk=request.session.get('userid', None))
+            poster = User.objects.get(pk=request.session.get('userid'))
         )
 
         newRumour.save()
+
+        activityLog = Action(
+            user = User.objects.get(pk=request.session.get('userid')),
+            verb = "added a rumour",
+            target = newRumour,
+        )
+
+        activityLog.save()
 
         #message for testing. replace with db code in next project
         messages.add_message(request, messages.SUCCESS, "You have successfully added the rumour: " + request.POST.get("title") + " - " + request.POST.get("description"))

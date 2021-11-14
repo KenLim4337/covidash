@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'coviDash.apps.CovidashConfig',
-    'users.apps.UsersConfig'
+    'users.apps.UsersConfig',
+    'actions.apps.ActionsConfig'
 ]
 
 MIDDLEWARE = [
