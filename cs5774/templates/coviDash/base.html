@@ -95,11 +95,11 @@
                         <li><a href="#">About Us</a></li>
                         <li><a href="{% url "coviDash:rumours" %}">Rumours</a></li>
                         <li><a href="#">Help</a></li>
-                        {% if request.session.role == "admin" %}
+                        {% if request.session.role == "admin" or request.session.role == "developer" %}
                         <li><a href="{% url "coviDash:admin" %}">Admin</a></li>
                         {% endif %}
-                        <li class="mobo-nav"><a href="#">My Profile</a></li>
-                        <li class="mobo-nav"><a href="#" class="logout-btn">Log Out</a></li>
+                        <li class="mobo-nav"><a href="{% url "users:profile" request.session.username %}">My Profile</a></li>
+                        <li class="mobo-nav"><a href="{% url "users:logout" %}" class="logout-btn">Log Out</a></li>
                     </ul>
                 </nav>
                 {% else %}
@@ -110,8 +110,8 @@
                         <li><a href="#">About Us</a></li>
                         <li><a href="{% url "coviDash:rumours" %}">Rumours</a></li>
                         <li><a href="#">Help</a></li>
-                        <li class="mobo-nav"><a href="#" class="login-btn">Login</a></li>
-                        <li class="mobo-nav"><a href="#" class="login-btn">Register</a></li>
+                        <li class="mobo-nav"><a href="{% url "users:login" %}" class="login-btn">Login</a></li>
+                        <li class="mobo-nav"><a href="{% url "users:register" %}" class="login-btn">Register</a></li>
                     </ul>
                 </nav>
                 {% endif %}
@@ -130,10 +130,10 @@
                             </div>
                         </div>
                     {% else %}
-                        <a href="#" class="nav-login login-btn">Login</a><span>|</span><a
-                            href="#" class="nav-register login-btn">Register</a>
+                        <a href="{% url "users:login" %}" class="nav-login login-btn">Login</a><span>|</span><a
+                            href="{% url "users:register" %}" class="nav-register login-btn">Register</a>
 
-
+                        <!--
                         <div class="formWrap">
                             <div class="formInner">
                                 <form id="login-box" action="{% url "users:login" %}" method="POST">
@@ -143,7 +143,7 @@
                                     <input type="submit" name="submit" value="Log In">
                                 </form>
                             </div>
-                        </div>
+                        </div>-->
                     {% endif %}
                 </div>
 

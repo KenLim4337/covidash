@@ -29,7 +29,7 @@
                 <!--Controls-->
 
                 <div class="controls">
-                    {% if request.session.role == "admin" %}
+                    {% if request.session.role == "admin" or request.session.role == "developer" %}
                     <form class="delete-form" action="{% url "coviDash:remove-rumour" %}" method="POST"
                         data-id="{{ rumour.id }}" data-title="{{ rumour.title }}">
                         {% csrf_token %}
@@ -38,7 +38,7 @@
                     </form>
                     {% endif %}
 
-                    {% if request.session.role == "admin" or request.session.username == rumour.poster.username %}
+                    {% if request.session.role == "admin" or request.session.username == rumour.poster.username or request.session.role == "developer" %}
                     <a class="edit-btn" href="{% url "coviDash:edit-rumour" rumour.id %}">Edit</a>
                     {% endif %}
                 </div>
@@ -129,6 +129,38 @@
 
             <div class="article-comments">
                 <ul>
+                    {% for comment in comments %}
+                    <li>
+                        <div class="upvotes">
+                            <div class="chev-up"></div>
+                            <div class="vote-number">{{ comment.get_updoots }}</div>
+                            <div class="chev-down"></div>
+                        </div>
+                        <!--Icon from freeicons.io-->
+                        <div class="user-icon">
+                            <a href="{% url "users:profile" comment.commenter.username %}">
+                                <img src="{% static "img/user-icon.png" %}" alt="User Icon">
+                            </a>
+                        </div>
+                        <div class="comment-body">
+                            <div class="user-name">
+                                <a href="{% url "users:profile" comment.commenter.username %}">{{ comment.commenter.username }}</a>
+                            </div>
+                            <div class="truth">
+                                <div class="validity">
+                                    {{ comment.validity_html|safe }}
+                                </div>
+                            </div>
+                            <div class="comment-text">
+                                {{ comment.body }}
+                            </div>
+                        </div>
+                    </li>
+
+                    {% empty %}
+                    <div class="no-result">No comments yet...</div>
+                    {% endfor %}
+
                     <li>
                         <div class="upvotes">
                             <div class="chev-up"></div>
@@ -155,82 +187,7 @@
                             </div>
                         </div>
                     </li>
-                    <li>
-                        <div class="upvotes">
-                            <div class="chev-up"></div>
-                            <div class="vote-number">113</div>
-                            <div class="chev-down"></div>
-                        </div>
-                        <div class="user-icon">
-                            <a href="#">
-                                <img src="{% static "img/user-icon.png" %}" alt="User Icon">
-                            </a>
-                        </div>
-                        <div class="comment-body">
-                            <div class="user-name">
-                                <a href="#">User 132</a>
-                            </div>
-                            <div class="truth">
-                                <div class="validity">
-                                    <span class="cross"></span><span>False</span>
-                                </div>
-                            </div>
-                            <div class="comment-text">
-                                Clearly taken out of context. I can't with the internet anymore.
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="upvotes">
-                            <div class="chev-up"></div>
-                            <div class="vote-number">210</div>
-                            <div class="chev-down"></div>
-                        </div>
-                        <div class="user-icon">
-                            <a href="#">
-                                <img src="{% static "img/user-icon.png" %}" alt="User Icon">
-                            </a>
-                        </div>
-                        <div class="comment-body">
-                            <div class="user-name">
-                                <a href="#">User 1401</a>
-                            </div>
-                            <div class="truth">
-                                <div class="validity">
-                                    <span class="cross"></span><span>False</span>
-                                </div>
-                            </div>
-                            <div class="comment-text">
-                                I watched the briefing live. Just Facebook being Facebook again I guess.
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="upvotes">
-                            <div class="chev-up"></div>
-                            <div class="vote-number">80</div>
-                            <div class="chev-down"></div>
-                        </div>
-                        <div class="user-icon">
-                            <a href="#">
-                                <img src="{% static "img/user-icon.png" %}" alt="User Icon">
-                            </a>
-                        </div>
-                        <div class="comment-body">
-                            <div class="user-name">
-                                <a href="#">User 4392</a>
-                            </div>
-                            <div class="truth">
-                                <div class="validity">
-                                    <span class="cross"></span><span>False</span>
-                                </div>
-                            </div>
-                            <div class="comment-text">
-                                It takes about 30 seconds to find the full briefing on Youtube... Check your sources
-                                people!
-                            </div>
-                        </div>
-                    </li>
+                    
                 </ul>
 
                 <a href="#" class="blue-cta">See More</a>

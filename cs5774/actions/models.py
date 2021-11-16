@@ -7,11 +7,12 @@ from django.utils import tree
 from coviDash.models import Rumour, Comment, Source, Vote
 
 verbdict = {
-    "RC": "commented on a rumour",
-    "AS": "added a source to a rumour",
+    "RC": "commented on a rumour: ",
+    "AS": "added a source to a rumour: ",
     "RV": "voted",
-    "AR": "added a rumour",
-    "RE": "edited a rumour"
+    "AR": "added a rumour: ",
+    "RE": "edited a rumour: ",
+    "DR": "added a rumour to their dashboard: "
 }
 
 class Action(models.Model):

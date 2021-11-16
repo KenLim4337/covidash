@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.urls import resolve
 from django.http import JsonResponse
-from .models import Rumour
+from .models import Rumour, Vote, Comment, Updoots, Source
 from actions.models import Action
 from django.contrib.auth.models import User
 from django.core import serializers
@@ -15,13 +15,18 @@ def home(request):
         #Newest first, limit to 20 items
         actions = Action.objects.all().order_by('-date')[:20]
 
+        #Get numbers 
+        numPoster = Rumour.objects.filter(poster = tempUser).count()
+        numCited = Source.objects.filter(commenter = tempUser).count()
+        numSolved = Comment.objects.filter(commenter = tempUser).values('rumour').distinct().count()
+
         userData = {
             #mess around with added later
             'added': [1,2,3,4],
-            'posted': tempUser.details.posted,
-            'cited': tempUser.details.cited,
-            'solved': tempUser.details.solved,
-            'title': tempUser.details.title
+            'posted': numPoster,
+            'cited': numCited,
+            'solved': numSolved,
+            'title': tempUser.details.get_title()
         }
 
         return render(request, 'coviDash/home.html', {
@@ -72,8 +77,14 @@ def list(request):
         )|Rumour.objects.filter(
             bodyHtml__icontains=query
         )|Rumour.objects.filter(
-            poster__icontains=query
+            poster__username__icontains=query
         ).order_by(sortQ)
+
+    if(resolve(request.path_info).url_name == 'admin'): 
+        return render(request, 'coviDash/list.html', {
+            'rumours': resultRumours,
+            'users': User.objects.all()
+        })
 
     return render(request, 'coviDash/list.html', {
         'rumours': resultRumours
@@ -82,9 +93,11 @@ def list(request):
 def detail(request, rumour_id):
     #Check for id in list
     rumour = Rumour.objects.get(pk=rumour_id)
+    comments = Comment.objects.filter(rumour_id = rumour_id)
 
     return render(request, 'coviDash/detail.html', {
-        'rumour': rumour
+        'rumour': rumour,
+        'comments': comments
     })
 
 def add(request):
@@ -99,23 +112,27 @@ def add(request):
         addBody = request.POST.get("bodytext")
         addImg = request.POST.get("picture")
 
+        tempuser = User.objects.get(pk=request.session.get('userid'))
+
         newRumour = Rumour(
             title = addTitle,
             description = addDesc,
             bodyHtml = addBody,
             img = addImg,
-            poster = User.objects.get(pk=request.session.get('userid'))
+            poster = tempuser
         )
 
         newRumour.save()
 
         activityLog = Action(
-            user = User.objects.get(pk=request.session.get('userid')),
+            user = tempuser,
             verb = "AR",
             target = newRumour,
         )
 
         activityLog.save()
+
+        tempuser.details.check_level()
 
         #message for testing. replace with db code in next project
         messages.add_message(request, messages.SUCCESS, "You have successfully added the rumour: " + request.POST.get("title") + " - " + request.POST.get("description"))
@@ -136,6 +153,8 @@ def edit(request, rumour_id):
 
     #if form submitted
     if request.method == 'POST':
+        tempuser = User.objects.get(pk=request.session.get('userid'))
+
         #pull post variables
         editTitle = request.POST.get("title")
         editDesc = request.POST.get("description")
@@ -151,6 +170,16 @@ def edit(request, rumour_id):
 
         #message for testing. replace with db code in next project
         messages.add_message(request, messages.INFO, "You have successfully edited the rumour: " + editTitle + " - " + editDesc)
+
+        activityLog = Action(
+            user = tempuser,
+            verb = "RE",
+            target = rumour,
+        )
+
+        activityLog.save()
+
+        tempuser.details.check_level()
 
         #back whence you came
         return redirect('coviDash:rumour-detail', rumour_id=rumour_id)
@@ -181,17 +210,21 @@ def vote(request):
     if is_ajax and request.method == "POST":
         rumourId = request.POST.get('id')
         validity = request.POST.get('validity')
+        tempuser = User.objects.get(pk=request.session.get('userid'))
 
         try:
             rumour = Rumour.objects.get(pk=rumourId)
-            
+            val = 0
+
             if validity == "true": 
                 #True
                 rumour.verusersT += 1
+                val = 1
 
             elif validity == "false": 
                 #False
                 rumour.verusersF += 1
+                val = -1
 
             #Update total for other uses
             rumour.verusers = rumour.verusersT + rumour.verusersF
@@ -213,6 +246,24 @@ def vote(request):
                     
             #save to db
             rumour.save()
+
+            vote = Vote (
+                voter = tempuser,
+                rumour = rumour,
+                validity = val,
+            )
+
+            vote.save()
+
+            activityLog = Action(
+                user = tempuser,
+                verb = "RV",
+                target = vote,
+            )
+
+            activityLog.save()
+
+            tempuser.details.check_level()
 
             return JsonResponse({
                 'success': 'success', 

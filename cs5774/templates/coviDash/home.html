@@ -292,10 +292,10 @@
             </div>
         </div>
         <div class="account-cta-wrap">
-            <div class="sign-in-message"><a href="#" class="login-btn">Sign in</a> for <strong>Your
+            <div class="sign-in-message"><a href="{% url "users:login" %}" class="login-btn">Sign in</a> for <strong>Your
                     Personalized
                     Dashboard!</strong></div>
-            <div class="register-message"><em>No account? <a href="#" class="login-btn">Register Now</a>!</em>
+            <div class="register-message"><em>No account? <a href="{% url "users:register" %}" class="login-btn">Register Now</a>!</em>
             </div>
         </div>
     </div>

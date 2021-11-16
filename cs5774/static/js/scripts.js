@@ -77,6 +77,8 @@ $(document).ready(() => {
         if(window.location.href.indexOf($(this).data('sortby')) == -1) {
             if(window.location.href.indexOf('&sortby') > -1) {
                 window.location = window.location.href.split('&sortby')[0]+"&sortby="+$(this).data('sortby');
+            } else if (window.location.href.indexOf('?searchquery') > -1) {
+                window.location = window.location.href+"&sortby="+$(this).data('sortby');
             } else {
                 window.location = window.location.href.split('?sortby')[0]+"?sortby="+$(this).data('sortby');
             }

@@ -14,16 +14,72 @@ All Rumours
 {% endblock %}
 
 {% block content %}
+
+{% if messages %}
+{% for message in messages %}
+    <div class="dbMessage alert-{{ message.tags }}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<!--As the urls are named rather conveniently for these, just pull the url name and capitalize-->
+<h1>{{ request.resolver_match.url_name|title }} </h1>
+{{ request.META.HTTP_REFERER }}
+{% if request.resolver_match.url_name == "admin" %}
+<section class="userlist listing-page">
+    {% if request.resolver_match.url_name == "admin" %}
+    <h2>
+        Users
+    </h2>
+
+    <ul>
+        {% for user in users %}
+            <li>{{ user.username }} | {{ user.first_name }} {{ user.last_name }} | {{ user.details.get_title }} | {{ user.details.role|title }} | <a href="{% url "users:profile" user.username %}">Profile</a> 
+                
+                {% if request.session.role == "admin" and user.details.role != "admin" and user.details.role != "developer" or request.session.role == "developer" or request.session.username == user.username %}
+                 | <a href="{% url "users:edit-user" user.username %}">Edit</a>
+                {% endif %}
+
+                {% if request.session.role == "developer" and user.details.role == "admin" %}
+                 | <form class="demote-form" action="{% url "users:edit-user" user.username %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" id="makeadmin" name="makeadmin" value="regular">
+                    <input type="submit" value="Demote">
+                </form>
+                {% endif %}
+
+                {% if request.session.role == "developer" and user.details.role == "regular" or request.session.role == "admin" and user.details.role == "regular" %}
+                 | <form class="demote-form" action="{% url "users:edit-user" user.username %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" id="makeadmin" name="makeadmin" value="admin">
+                        <input type="submit" value="Promote">
+                    </form>
+                {% endif %}
+
+                {% if request.session.role == "developer" and request.session.username != user.username %}
+                 | <form class="delete-form" action="{% url "users:remove-user" %}" method="POST"
+                    data-id="{{ user.id }}" data-title="{{ user.username }}">
+                    {% csrf_token %}
+                    <input type="hidden" id="userId" name="userId" value="{{ user.id }}">
+                    <input type="hidden" id="userName" name="userName" value="{{ user.name }}">
+                    <input type="submit" value="Remove">
+                </form>
+                {% endif %}
+
+            </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</section>
+{% endif %}
+
 <!--Add class onto tile-set to adapt for listing page (long list vs carousel)-->
 <section class="tile-set listing-page">
-    {% if messages %}
-    {% for message in messages %}
-        <div class="dbMessage alert-{{ message.tags }}">{{ message }}</div>
-    {% endfor %}
+    
+    {% if request.resolver_match.url_name == "admin" %}
+    <h2>
+        Rumours
+    </h2>
     {% endif %}
-
-    <!--As the urls are named rather conveniently for these, just pull the url name and capitalize-->
-    <h1>{{ request.resolver_match.url_name|title }} </h1>
 
     <!--Conditionals to separate search, admin and listing-->
     {% if request.resolver_match.url_name != "admin" %}

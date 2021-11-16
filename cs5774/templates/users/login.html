@@ -9,29 +9,27 @@
 <section class="login-form">
     {% if messages %}
     {% for message in messages %}
-        <div class="dbMessage">{{ message }}</div>
+    <div class="dbMessage alert-{{ message.tags }}">{{ message }}</div>
     {% endfor %}
     {% endif %}
 
     <h1>
-        Register User
+        Login
     </h1>
     
-    <div class="register-form-inner">
+    <div class="login-form-inner">
         <!--New class for light backgrounds-->
-        <p>* = Required</p>
-        <form id="register-user" class="form-dark" action={% url "users:login-user" %} method="POST">
+        <form id="login-user" class="form-dark" action={% url "users:login" %} method="POST">
             {% csrf_token %}
             <label for="username">Name*</label>
             <input type="text" id="username" name="username" placeholder="What is your name?" required>
 
-            <label for="email">Email*</label>
-            <input type="email" id="email" name="email" placeholder="What is your email?" required>
-
             <label for="password">Password*</label>
             <input type="password" id="password" name="password" placeholder="What is your password?" required>
 
-            <input type="submit" value="Register!">
+            <input type="submit" value="Login">
         </form>
     </div>
 </section>
+
+{% endblock %}

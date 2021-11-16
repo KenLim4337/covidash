@@ -1,40 +1,122 @@
-{% extends "users/base.html" %}
+{% extends "coviDash/base.html" %}
 {% load static %}
 
 {% block title %}
+    {% if userdata %} 
+    Edit User
+    {% else %} 
     Register for an Account
+    {% endif %}
 {% endblock %} 
 
 {% block content %}
 <section class="registration-form">
     {% if messages %}
     {% for message in messages %}
-        <div class="dbMessage">{{ message }}</div>
+    <div class="dbMessage alert-{{ message.tags }}">{{ message }}</div>
     {% endfor %}
     {% endif %}
 
     <h1>
+        {% if userdata %} 
+        Edit User: {{ userdata.username }}
+        {% else %} 
         Register User
+        {% endif %}
     </h1>
     
     <div class="register-form-inner">
         <!--New class for light backgrounds-->
         <p>* = Required</p>
-        <form id="register-user" class="form-dark" action={% url "users:register" %} method="POST">
+        <form id="register-user" class="form-dark" action=
+        {% if userdata %}
+        "{% url "users:edit-user" userdata.username %}"
+        {% else %}
+        "{% url "users:register" %}"
+        {% endif %} method="POST">
             {% csrf_token %}
-            <label for="username">Name*</label>
-            <input type="text" id="username" name="username" placeholder="What is your name?" required>
+            {% if userdata %}
+                {% if userdata.id == request.session.userid %}
+                <label for="firstname">First Name*</label>
+                <input type="text" id="firstname" name="firstname" placeholder="What is your first name?" {% if userdata %}value="{{ userdata.first_name }}"{% endif %} required>
+                
+                <label for="lastname">Last Name*</label>
+                <input type="text" id="lastname" name="lastname" placeholder="What is your last name?" {% if userdata %}value="{{ userdata.last_name }}"{% endif %} required>
 
-            <label for="email">Email*</label>
-            <input type="email" id="email" name="email" placeholder="What is your email?" required>
+                <label for="email">Email*</label>
+                <input type="email" id="email" name="email" placeholder="What is your email?" {% if userdata %}value="{{ userdata.email }}"{% endif %} required>
 
-            <label for="password">Password*</label>
-            <input type="password" id="password" name="password" placeholder="What is your password?" required>
+                <label for="password">New Password (Optional)</label>
+                <input type="password" id="password" name="password" placeholder="What is your new password?">
+
+                <label for="oldpassword">Old Password (If there is a new password)</label>
+                <input type="password" id="oldpassword" name="oldpassword" placeholder="Retype your old password please" >
+
+                {% elif request.session.role == 'admin' and userdata.details.role != 'admin' %}
+                <label for="firstname">First Name*</label>
+                <input type="text" id="firstname" name="firstname" placeholder="What is your first name?" {% if userdata %}value="{{ userdata.first_name }}"{% endif %} required>
+                
+                <label for="lastname">Last Name*</label>
+                <input type="text" id="lastname" name="lastname" placeholder="What is your last name?" {% if userdata %}value="{{ userdata.last_name }}"{% endif %} required>
+
+                <label for="email">Email*</label>
+                <input type="email" id="email" name="email" placeholder="What is your email?" {% if userdata %}value="{{ userdata.email }}"{% endif %} required>
+                {% elif request.session.role == 'developer' %}
+                <label for="firstname">First Name*</label>
+                <input type="text" id="firstname" name="firstname" placeholder="What is your first name?" {% if userdata %}value="{{ userdata.first_name }}"{% endif %} required>
+                
+                <label for="lastname">Last Name*</label>
+                <input type="text" id="lastname" name="lastname" placeholder="What is your last name?" {% if userdata %}value="{{ userdata.last_name }}"{% endif %} required>
+
+                <label for="email">Email*</label>
+                <input type="email" id="email" name="email" placeholder="What is your email?" {% if userdata %}value="{{ userdata.email }}"{% endif %} required>
+                {% endif %}
+            {% else %}
+                <label for="username">User Name*</label>
+                <input type="text" id="username" name="username" placeholder="What is your username?" {% if userdata %}value="{{ userdata.username }}"{% endif %} required>
+                
+                <label for="firstname">First Name*</label>
+                <input type="text" id="firstname" name="firstname" placeholder="What is your first name?" {% if userdata %}value="{{ userdata.first_name }}"{% endif %} required>
+                
+                <label for="lastname">Last Name*</label>
+                <input type="text" id="lastname" name="lastname" placeholder="What is your last name?" {% if userdata %}value="{{ userdata.last_name }}"{% endif %} required>
+
+                <label for="email">Email*</label>
+                <input type="email" id="email" name="email" placeholder="What is your email?" {% if userdata %}value="{{ userdata.email }}"{% endif %} required>
+
+                <label for="password">Password*</label>
+                <input type="password" id="password" name="password" placeholder="What is your password?" required>
+            {% endif %}
+
+            {% if request.session.role == 'admin' and userdata.details.role != 'admin' and userdata.details.role != 'developer' %}
+                <label for="makeadmin">Make Admin?</label>
+                <input type="checkbox" id="makeadmin" name="makeadmin" value="admin">
+            {% elif request.session.role == 'developer' and userdata.details.role != 'developer' %}
+                <label for="makeadmin">Role Adjust</label>
+                <select name="makeadmin" id="makeadmin">
+                    <option value="" selected>Select role</option>
+                    <option value="admin">Admin</option>
+                    <option value="regular">Regular</option>
+                </select>
+            {% endif %}
+
 
             <!--Hidden field to hold list of rumours-->
 
-            <input type="submit" value="Register!">
+            <input type="submit" value={% if userdata %}"Edit User"{% else %}"Register!"{% endif %}>
         </form>
+        
+        <!--Prevent developer suicide-->
+        {% if request.session.role == "developer" and request.session.username != userdata.username %}
+        <form class="delete-form" action="{% url "users:remove-user" %}" method="POST"
+            data-id="{{ userdata.id }}" data-title="{{ userdata.username }}">
+            {% csrf_token %}
+            <input type="hidden" id="userId" name="userId" value="{{ userdata.id }}">
+            <input type="hidden" id="userName" name="userName" value="{{ userdata.name }}">
+            <input type="submit" value="Remove User">
+        </form>
+        {% endif %}
+
     </div>
 </section>
 {% endblock %}

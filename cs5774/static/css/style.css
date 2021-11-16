@@ -140,20 +140,12 @@ header .header-inner .account-wrap {
   color: #ffffff;
 }
 
-header .header-inner .account-wrap > span {
-  display: none;
-}
-
 header .header-inner .account-wrap a {
   text-decoration: none;
   color: #ffffff;
   padding: 0 5px;
   -webkit-transition: 0.3s ease all;
   transition: 0.3s ease all;
-}
-
-header .header-inner .account-wrap a.login-btn {
-  display: none;
 }
 
 header .header-inner .account-wrap .formWrap form#login-box input {
@@ -349,7 +341,7 @@ main section {
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
-  border: 2px solid #055faa;
+  border: 2px solid rgba(5,95,170,0.4);
   border-radius: 5px;
   padding: 10px 20px;
 }
@@ -480,7 +472,7 @@ main section {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  border: 2px solid #055faa;
+  border: 2px solid rgba(5,95,170,0.4);
   border-radius: 5px;
   position: relative;
 }
@@ -509,6 +501,7 @@ main section {
   max-width: none;
   -o-object-fit: cover;
   object-fit: cover;
+  border-radius: 5px 0 0 5px;
 }
 
 .module-tile.dash-module-full .tile-cta {
@@ -525,7 +518,7 @@ main section {
 
 /*Account section*/
 .dash-wrap .account-block {
-  border: 2px solid #055faa;
+  border: 2px solid rgba(5,95,170,0.4);
   border-radius: 5px;
   padding: 30px 20px;
   margin: 0;
@@ -719,11 +712,15 @@ main section {
   overflow: hidden;
   border-radius: 5px 5px 0px 0px;
   border-width: 2px 2px 0 2px;
-  border-color: #055faa;
+  border-color: rgba(5,95,170,0.4);
   border-style: solid;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 5px 20px;
   overflow: hidden;
   position: relative;
+}
+
+.module-tile .tile-image img {
+  border-radius: 5px 5px 0px 0px;
 }
 
 /*Overlay for tile image*/
@@ -857,7 +854,7 @@ main section {
   width: 100%;
   padding: 20px 15px 15px;
   border-width: 0 2px 0;
-  border-color: #055faa;
+  border-color: rgba(5,95,170,0.4);
   border-style: solid;
 }
 
@@ -876,7 +873,7 @@ main section {
 .module-tile .tile-cta {
   width: 100%;
   border-width: 0 2px 2px 2px;
-  border-color: #055faa;
+  border-color: rgba(5,95,170,0.4);
   border-style: solid;
   border-radius: 0 0 5px 5px;
   padding: 0 15px 20px;
@@ -1338,7 +1335,7 @@ body .delete-box {
   -webkit-transition: 0.4s ease all;
   transition: 0.4s ease all;
   background: #ffffff;
-  border: #055faa 2px solid;
+  border: rgba(5,95,170,0.4) 2px solid;
   border-radius: 5px;
 }
 
@@ -2651,7 +2648,7 @@ article .social-section .article-comments ul li .comment-body .truth .validity {
   position: absolute;
   z-index: 5;
   background: white;
-  border:#055faa 2px solid;
+  border:rgba(5,95,170,0.4) 2px solid;
   border-radius: 4px;
   margin-top: 5px;
   cursor: pointer;
@@ -2662,37 +2659,27 @@ article .social-section .article-comments ul li .comment-body .truth .validity {
 }
 
 /*Messages*/
-.dbMessage.alert-success {
-  color: #33aa33;
+.dbMessage {
+  margin: 15px 0;
   background-color:#ffffff;
-  border:#055faa 3px solid;
+  border:rgba(5,95,170,0.4) 3px solid;
   border-radius: 4px;
   padding: 20px;
   text-align: center;
   font-size: 1.25rem;
   font-weight: 400;
+}
+
+.dbMessage.alert-success {
+  color: #33aa33;
 }
 
 .dbMessage.alert-warning {
   color: #bb3333;
-  background-color: #fff;
-  border:#055faa 3px solid;
-  border-radius: 4px;
-  padding: 20px;
-  text-align: center;
-  font-size: 1.25rem;
-  font-weight: 400;
 }
 
 .dbMessage.alert-info {
   color: #055faa;
-  background-color: #fff;
-  border:#055faa 3px solid;
-  border-radius: 4px;
-  padding: 20px;
-  text-align: center;
-  font-size: 1.25rem;
-  font-weight: 400;
 }
 
 /*Vote dialogue*/

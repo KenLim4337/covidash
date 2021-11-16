@@ -2,22 +2,38 @@
 
 {% load static %}
 
-{% block title %} {{ user.username }} {% endblock %}
+{% block title %} {{ userdata.username }} {% endblock %}
 
 {% block content %}
 
 
+{% if messages %}
+{% for message in messages %}
+<div class="dbMessage alert-{{ message.tags }}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
 <section class="user-profile">
-    <h1>{{ user.username }}'s Profile</h1>
+    <h1>{{ userdata.username }}'s Profile</h1>
+
+    {% if request.session.role == "admin" and userdata.details.role != "admin" and userdata.details.role != "developer" %}
+    <div class="controls">
+        <a class="edit-btn" href="{% url "users:edit-user" userdata.username %}">Edit</a>
+    </div>
+    {% elif request.session.username == userdata.username or request.session.role == "developer" %}
+    <div class="controls">
+        <a class="edit-btn" href="{% url "users:edit-user" userdata.username %}">Edit</a>
+    </div>
+    {% endif %}
 
     <div class="profile-inner">
         <dl>
             <dt>User Name</dt>
-            <dd>{{ user.username }}</dd>
+            <dd>{{ userdata.username }}</dd>
             <dt>Email address</dt>
-            <dd>{{ user.email }}</dd>
+            <dd>{{ userdata.email }}</dd>
             <dt>Title</dt>
-            <dd>{{ user.details.title }}</dd>
+            <dd>Level {{ userdata.details.level }} {{ userdata.details.get_title }}</dd>
         </dl>
     </div>
 

@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'y+-gcnsq$pkp@w2&kin)2lfsx0rs1r66_s@67_7f1l%c+9m)ep'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['covidash.herokuapp.com', '127.0.0.1', 'localhost']
 
