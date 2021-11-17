@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib import messages
 from django.urls import resolve
 from django.http import JsonResponse
@@ -93,7 +93,7 @@ def list(request):
 def detail(request, rumour_id):
     #Check for id in list
     rumour = Rumour.objects.get(pk=rumour_id)
-    comments = Comment.objects.filter(rumour_id = rumour_id)
+    comments = Comment.objects.filter(rumour_id = rumour_id).order_by('-date')
 
     return render(request, 'coviDash/detail.html', {
         'rumour': rumour,
@@ -267,8 +267,8 @@ def vote(request):
 
             return JsonResponse({
                 'success': 'success', 
-                'true': rumour.verusersT,
-                'false': rumour.verusersF,
+                'true': rumour.get_votes().get('true'),
+                'false': rumour.get_votes().get('false'),
                 'validity': rumour.validity
             }, status=200)
 
@@ -278,6 +278,35 @@ def vote(request):
     else: 
         return JsonResponse({'error': 'Invalid request'}, status=400)
         
+def addcomment(request):
+    if request.method == 'POST':
+        temprumour = Rumour.objects.get(pk=request.POST.get("rumourid"))
+        tempbody = request.POST.get("commentbody")
+        tempuser = User.objects.get(pk=request.session.get('userid'))
+
+        newComment = Comment(
+            commenter = tempuser,
+            body = tempbody,
+            rumour = temprumour
+        )
+
+        newComment.save()
+
+        activityLog = Action(
+            user = tempuser,
+            verb = "RC",
+            target = newComment,
+        )
+
+        activityLog.save()
+
+        tempuser.details.check_level()
+
+        #message for testing. replace with db code in next project
+        messages.add_message(request, messages.SUCCESS, "You have successfully posted a comment!")
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 def rumourget(request):
     is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
     

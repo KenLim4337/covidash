@@ -10,9 +10,9 @@ upvote_to_text = {
 }
 
 truth_html = {
-    '-1': '<span class="cross"></span><span>False</span>',
-    '0': '<span class="mixed"></span><span>Mixed</span>',
-    '1': '<span class="tick"></span><span>True</span>'
+    -1: '<span class="cross"></span><span>False</span>',
+    0: '<span class="mixed"></span><span>Mixed</span>',
+    1: '<span class="tick"></span><span>True</span>'
 }
 
 # Create your models here.
@@ -35,6 +35,7 @@ class Rumour(models.Model):
     #Will be replaced by foreign keys
     versourceF = models.IntegerField(default=0)
     versourceT = models.IntegerField(default=0)
+    
     #Sum of the two
     versource = models.IntegerField(default=0)
 
@@ -50,12 +51,26 @@ class Rumour(models.Model):
     def get_absolute_url(self):
         return reverse('coviDash:rumour-detail', args=[self.id])
 
+    def get_votes(self):
+        votes = {
+            'true': 0,
+            'false': 0
+        }
+        
+        voteQuery = Vote.objects.filter(rumour = self)
+
+        votes['true'] = voteQuery.filter(validity = 1).count()
+        votes['false'] = voteQuery.filter(validity = -1).count()
+
+        return votes
+
+    def validity_html(self):
+        return truth_html.get(self.validity)
+
 class Comment(models.Model):
     commenter = models.ForeignKey(User, on_delete=models.CASCADE)
     rumour = models.ForeignKey(Rumour, on_delete=models.CASCADE)
     body = models.TextField(default="Comment Body")
-    #+1, 0 or -1
-    validity = models.IntegerField(default="0")
     #Date posted
     date = models.DateTimeField(default=datetime.now, blank=True, null=True)
 
@@ -64,14 +79,9 @@ class Comment(models.Model):
 
     def get_updoots(self):
         updoots = Updoots.objects.filter(comment = self).aggregate(Sum('validity')).get('validity__sum')
-
         if updoots == None:
             updoots = 0
-
         return updoots
-    
-    def validity_html(self):
-        return truth_html[self.validity]
 
 class Updoots(models.Model):
     voter = models.ForeignKey(User, on_delete=models.CASCADE)

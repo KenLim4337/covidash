@@ -16,5 +16,6 @@ urlpatterns = [
     path('rumours/<int:rumour_id>/edit',views.edit, name='edit-rumour'),
     path('remove-rumour', views.delete, name='remove-rumour'),
     path('rumours/vote', views.vote, name='vote'),
+    path('rumours/add-comment', views.addcomment, name='add-comment'),
 ]
  

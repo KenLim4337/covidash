@@ -72,7 +72,7 @@
                                 <span class="percent-number">100%</span> <strong>{{ rumour.validity }}</strong>
                             </div>
                         </div>
-                        <div class="user-chart" data-true="{{ rumour.verusersT }}" data-false="{{ rumour.verusersF }}">
+                        <div class="user-chart" data-true="{{ rumour.get_votes.true }}" data-false="{{ rumour.get_votes.false }}">
                             <div class="chart-title">
                                 Users
                             </div>
@@ -125,13 +125,13 @@
 
         <!--Comment section-->
         <div class="comment-block" id="comments">
-            <h2 class="accordion-head">Comments (20) <span class="chev-up"></span></h2>
+            <h2 class="accordion-head">Comments ({{ comments.count }}) <span class="chev-up"></span></h2>
 
             <div class="article-comments">
                 <ul>
                     {% for comment in comments %}
                     <li>
-                        <div class="upvotes">
+                        <div class="upvotes" data-id="{{ comment.id }}">
                             <div class="chev-up"></div>
                             <div class="vote-number">{{ comment.get_updoots }}</div>
                             <div class="chev-down"></div>
@@ -146,48 +146,21 @@
                             <div class="user-name">
                                 <a href="{% url "users:profile" comment.commenter.username %}">{{ comment.commenter.username }}</a>
                             </div>
-                            <div class="truth">
-                                <div class="validity">
-                                    {{ comment.validity_html|safe }}
-                                </div>
-                            </div>
                             <div class="comment-text">
                                 {{ comment.body }}
                             </div>
+                            {% if comment.commenter.id == request.session.userid or request.session.role == 'admin' or request.session.role == 'developer' %}
+                            <div class="comment-controls" data-id="{{ comment.id }}">
+                                <a href="#">Edit</a>
+                                <a href="#">Delete</a>
+                            </div>
+                            {% endif %}
                         </div>
                     </li>
 
                     {% empty %}
                     <div class="no-result">No comments yet...</div>
                     {% endfor %}
-
-                    <li>
-                        <div class="upvotes">
-                            <div class="chev-up"></div>
-                            <div class="vote-number">-120</div>
-                            <div class="chev-down"></div>
-                        </div>
-                        <!--Icon from freeicons.io-->
-                        <div class="user-icon">
-                            <a href="#">
-                                <img src="{% static "img/user-icon.png" %}" alt="User Icon">
-                            </a>
-                        </div>
-                        <div class="comment-body">
-                            <div class="user-name">
-                                <a href="#">User 23412</a>
-                            </div>
-                            <div class="truth">
-                                <div class="validity">
-                                    <span class="tick"></span><span>True</span>
-                                </div>
-                            </div>
-                            <div class="comment-text">
-                                Sounds like something he'd say. This reeks of a coverup.
-                            </div>
-                        </div>
-                    </li>
-                    
                 </ul>
 
                 <a href="#" class="blue-cta">See More</a>
@@ -195,21 +168,16 @@
 
                 {% if request.session.username %}
                 <div class="article-comment-upload">
-                    <form class="form-dark" action="#">
+                    <form class="form-dark" action="{% url "coviDash:add-comment" %}" method="POST">
+                        {% csrf_token %}
                         <div class="form-title">
                             Add a Comment
                         </div>
 
-                        <label for="commenttrue">I think this is:</label>
-
-                        <select name="commenttrue" id="commenttrue">
-                            <option value="" disabled selected>Select validity</option>
-                            <option value="true">True</option>
-                            <option value="false">False</option>
-                        </select>
-
                         <textarea id="commentbody" name="commentbody"
-                            placeholder="What do you think about this rumour?"></textarea>
+                            placeholder="What do you think about this rumour?" required></textarea>
+                        
+                        <input type="hidden" name="rumourid" value="{{rumour.id}}">
 
                         <input type="submit" value="Comment">
                     </form>
