@@ -1,6 +1,171 @@
+const commentTemplate = `
+    <li data-id="">
+        <div class="upvotes" data-id="">
+            <div class="chev-up"></div>
+            <div class="vote-number">0</div>
+            <div class="chev-down"></div>
+        </div>
+        <!--Icon from freeicons.io-->
+        <div class="user-icon">
+            <a href="">
+                <img src="/static/img/user-icon.png" alt="User Icon">
+            </a>
+        </div>
+        <div class="comment-body">
+            <div class="user-name">
+                <a href=""></a>
+            </div>
+            <div class="comment-text">
+                <div class="body"></div>
+                <div class="meta">
+                    <p class="postdate">Posted: <em></em></p>
+                </div> 
+            </div>
+            <div class="comment-controls" data-id="">
+                <a href="#" class="edit-btn">Edit</a>
+                <a href="#" class="delete-btn" >Delete</a>
+            </div>
+        </div>
+    </li>
+`
+
+const deleteBox = '<div class="delete-box"><div class="delete-inner"><div class="delete-head">Really delete "<span class="delete-title"></span>"?</div><div class="delete-buttons"><button class="delete-yes">Yes</button><button class="delete-no">No</button></div></div></div><div class="delete-overlay"></div>'
+
+
+//Cart popup content
+const cartPopContent = {
+    'add': '<div>You have successfully added <strong>"<span class="item-title"></span>"</strong> to your pending modules!</div>',
+    'remove': '<div>You have successfully removed <strong>"<span class="item-title"></span>"</strong> from your pending modules!</div>',
+    'removecart': '<div>You have successfully removed <strong>"<span class="item-title"></span>"</strong> from your pending modules! <a href="#" class="popup-undo">Undo</a></div>'
+}
+
+//Cart popup
+const cartPopUp = '<div class="cart-popup"><div class="popup-inner"><div class="popup-content"></div><div class="close"></div></div></div>'
+
+//Bring back cart rendering function
+const cartTemplate = `
+    <li>
+        <div class="thumb-wrap">
+            <img src="" alt="">
+        </div>
+        <div class="cart-item-content">
+            <div class="title"></div>
+        </div>
+        <div class="close">
+        </div>
+    </li>
+`
+
 $(document).ready(() => {
     //CSRF
     const csrftoken = getCookie('csrftoken');
+
+    //Add comment, other events for details page
+    if($('article').length > 0) {
+        $('body').on('click','.article-comment-upload form input[type="submit"]', function(e){
+            e.preventDefault();
+            e.stopPropagation();
+
+            //Run Ajax
+            $.ajax({
+                url: $(this).data('ajax-url'),
+                data: {
+                    rumourid: $('.article-comment-upload #rumourid').val(),
+                    commentbody: $('.article-comment-upload #commentbody').val()
+                },
+                type:'POST',
+                dataType: "json",
+                headers: {'X-CSRFToken': csrftoken}
+            }).done(function(json){
+
+                $('.article-comments ul').prepend(jsonToComment(json));
+
+                $('.article-comment-upload #commentbody').val('');
+                $('html,body').animate({
+                    scrollTop: $('.comment-block').offset().top - 40
+                })
+
+                $('.article-comments ul li:eq(0)').addClass('highlight-comment');
+
+                setTimeout(function(){
+                    $('.article-comments ul li').removeClass('highlight-comment');
+                },5000);
+
+                $('.article-comments .no-result').remove();
+
+            }).fail(function(xhr,status,errorThrown){
+                console.log("Error: " + errorThrown);
+            })
+        });
+
+        //Delete stuff
+        $('body').on('click', '.article-comments ul li .delete-btn', function(e){
+            e.preventDefault();
+            e.stopPropagation();
+
+            $('.delete-box, .delete-overlay').remove();
+
+            var deleteid = $(this).parents('.comment-controls').data('id');
+            var tempBox = $(deleteBox);
+
+            tempBox.find('.delete-head').text("Really delete this comment?");
+            
+            tempBox.find('.delete-yes').attr('data-id', deleteid).removeClass('delete-yes').addClass('delete-comment-yes');
+
+            $('body').append(tempBox);
+
+            $('body').addClass('showDelete');
+        });
+
+        $('body').on('click', '.delete-box .delete-comment-yes', function(e){
+            e.preventDefault();
+            e.stopPropagation();
+
+            $('.delete-box, .delete-overlay').remove();
+
+            var deleteid = $(this).data('id');
+
+            $.ajax({
+                url: '/rumours/remove-comment',
+                data: {
+                    id: deleteid,
+                },
+                type:'POST',
+                dataType: "json",
+                headers: {'X-CSRFToken': csrftoken}
+            }).done(function(json){
+
+                $('.article-comments ul li[data-id="'+json.id+'"]').remove();
+
+                if($('.article-comments ul li').length == 0) {
+                    $('.article-comments ul').append('<div class="no-result">No comments yet...</div>'); 
+                }
+
+                $('html,body').animate({
+                    scrollTop: $('.comment-block').offset().top - 40
+                })
+            }).fail(function(xhr,status,errorThrown){
+                console.log("Error: " + errorThrown);
+            })
+        });
+
+        //Edit Stuff
+        $('body').on('click', '.article-comments ul li .edit-btn', function(e){
+            e.preventDefault();
+            e.stopPropagation();
+
+            var editid = $(this).parents('.comment-controls').data('id');
+
+            tempBox.find('.delete-head').text("Really delete this comment?");
+            
+            tempBox.find('.delete-yes').attr('data-id', deleteid).removeClass('delete-yes').addClass('delete-comment-yes');
+
+            $('body').append(tempBox);
+
+            $('body').addClass('showDelete');
+        });
+
+    }
 
     //Pie stuff
     if($('.validation-charts').length > 0) {
@@ -59,6 +224,7 @@ $(document).ready(() => {
         }
     });
 
+
     //Sort Stuff on load, disable active sort
     $('.sort-options li[data-sortby="'+$('.active-sort .sort-text').text().trim().toLowerCase()+'"]').addClass('disabled');
 
@@ -93,8 +259,6 @@ $(document).ready(() => {
             });
         }, 8000);
     }
-
-    const deleteBox = '<div class="delete-box"><div class="delete-inner"><div class="delete-head">Really delete "<span class="delete-title"></span>"?</div><div class="delete-buttons"><button class="delete-yes">Yes</button><button class="delete-no">No</button></div></div></div><div class="delete-overlay"></div>'
 
     /*Delete stuff*/
     $('body').on('click', 'form.delete-form input[type="submit"]', function(e){
@@ -131,13 +295,6 @@ $(document).ready(() => {
     //Cart events
     //Initialize cart storage item
     var cart = JSON.parse(sessionStorage.getItem('coviCart')) || [];
-
-    //Cart popup content
-    const cartPopContent = {
-        'add': '<div>You have successfully added <strong>"<span class="item-title"></span>"</strong> to your pending modules!</div>',
-        'remove': '<div>You have successfully removed <strong>"<span class="item-title"></span>"</strong> from your pending modules!</div>',
-        'removecart': '<div>You have successfully removed <strong>"<span class="item-title"></span>"</strong> from your pending modules! <a href="#" class="popup-undo">Undo</a></div>'
-    }
 
     //Set number of cart items
     $('header .header-inner .cart-wrap .cart-link .cart-number').text(cart.length);
@@ -204,9 +361,6 @@ $(document).ready(() => {
     //Stores settimeout
     var popPoller;
     var removePoller;
-
-    //Cart popup
-    var cartPopUp = '<div class="cart-popup"><div class="popup-inner"><div class="popup-content"></div><div class="close"></div></div></div>'
 
     //Add to cart button
     $('body').on('click', '.to-cart', function (e) {
@@ -495,20 +649,6 @@ function refreshPies() {
     });
 }
 
-//Bring back cart rendering function
-var cartTemplate = `
-    <li>
-        <div class="thumb-wrap">
-            <img src="" alt="">
-        </div>
-        <div class="cart-item-content">
-            <div class="title"></div>
-        </div>
-        <div class="close">
-        </div>
-    </li>
-`
-
 //Populate a cart based on a json list of rumours
 function populateCart(selector, itemList) {
     $('.cart-section .cart-inner #cart, .cart-section .cart-cta').show();
@@ -540,7 +680,6 @@ function populateCart(selector, itemList) {
 
 }
 
-
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -557,3 +696,23 @@ function getCookie(name) {
     return cookieValue;
 }
 
+function jsonToComment(json) {
+    var commentData = json;
+    var newComment = $(commentTemplate);
+
+    console.log(commentData.id);
+
+    newComment.attr('data-id', commentData.id);
+    
+    newComment.find('.upvotes, .comment-controls').attr('data-id', commentData.id);
+
+    newComment.find('.user-icon a, .user-name a').attr('href', commentData.commenterUrl);
+    
+    newComment.find('.user-name a').text(commentData.commenter);
+
+    newComment.find('.comment-text .body').text(commentData.body);
+
+    newComment.find('.meta .postdate em').text(commentData.time);
+
+    return newComment;
+}

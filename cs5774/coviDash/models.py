@@ -21,6 +21,7 @@ class Rumour(models.Model):
     img = models.CharField(max_length=200, default="/")
     description = models.TextField(default="Description")
     date = models.DateTimeField(default=datetime.now, blank=True, null=True)
+    edited = models.DateTimeField(blank=True, null=True)
 
     #Rel to user
     poster = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -73,6 +74,7 @@ class Comment(models.Model):
     body = models.TextField(default="Comment Body")
     #Date posted
     date = models.DateTimeField(default=datetime.now, blank=True, null=True)
+    edited = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return self.rumour.title

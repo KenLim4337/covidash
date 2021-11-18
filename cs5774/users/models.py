@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.fields.related import ManyToManyField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from coviDash.models import Rumour, Comment
@@ -14,6 +15,7 @@ class Details(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     role = models.CharField(default="regular", max_length=50)
     level = models.PositiveIntegerField(default=1)
+    subscribed = ManyToManyField(Rumour)
 
     def get_absolute_url(self):
         return reverse('users:profile', args=[self.user.username.lower()])
@@ -39,6 +41,9 @@ class Details(models.Model):
 
     def get_title(self):
         return titleList[self.level]
+
+    def get_name(self):
+        return self.user.first_name + ' ' + self.user.last_name
 
 
 @receiver(post_save, sender=User)

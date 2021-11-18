@@ -2,18 +2,31 @@ from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib import messages
 from django.urls import resolve
 from django.http import JsonResponse
+from django.db import models
 from .models import Rumour, Vote, Comment, Updoots, Source
 from actions.models import Action
 from django.contrib.auth.models import User
 from django.core import serializers
+from datetime import datetime
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.humanize.templatetags.humanize import naturaltime
 
 def home(request):
     #pass detailed user data if logged in for dashboard otherwise empty userData will be passed
     if request.session.get('userid', None) != None:
         tempUser = User.objects.get(pk=request.session.get('userid', None))
 
+        involvedRumours = tempUser.details.subscribed.all().values_list('pk') | Rumour.objects.filter(poster=tempUser).values_list('pk')
+
         #Newest first, limit to 20 items
-        actions = Action.objects.all().order_by('-date')[:20]
+        
+        print(ContentType.objects.get_for_model(Rumour).id)
+
+        actions = Action.objects.filter(user=tempUser) | Action.objects.filter(target_ct=ContentType.objects.get_for_model(Rumour).id, target_id__in=involvedRumours).order_by('-date')
+
+        #actions = Action.objects.all().order_by('-date')
+
+        added = Rumour.objects.filter().values_list('pk').order_by('-date')[:4]
 
         #Get numbers 
         numPoster = Rumour.objects.filter(poster = tempUser).count()
@@ -22,7 +35,6 @@ def home(request):
 
         userData = {
             #mess around with added later
-            'added': [1,2,3,4],
             'posted': numPoster,
             'cited': numCited,
             'solved': numSolved,
@@ -30,13 +42,14 @@ def home(request):
         }
 
         return render(request, 'coviDash/home.html', {
-            'rumours': Rumour.objects.all().order_by('pk'),
+            'dash': Rumour.objects.filter(pk__in=added).order_by('-date'),
+            'rumours': Rumour.objects.exclude(pk__in=added).order_by('-date'),
             'userData': userData,
             'actions': actions
         })
     else: 
         return render(request, 'coviDash/home.html',{
-            'rumours': Rumour.objects.all().order_by('pk')
+            'rumours': Rumour.objects.all().order_by('-date')
         })
 
 
@@ -132,6 +145,9 @@ def add(request):
 
         activityLog.save()
 
+        tempuser.details.subscribed.add(newRumour)
+        tempuser.save()
+
         tempuser.details.check_level()
 
         #message for testing. replace with db code in next project
@@ -165,11 +181,12 @@ def edit(request, rumour_id):
         rumour.description = editDesc
         rumour.bodyHtml = editBody
         rumour.img = editImg
+        rumour.edited = datetime.now()
 
         rumour.save()
 
         #message for testing. replace with db code in next project
-        messages.add_message(request, messages.INFO, "You have successfully edited the rumour: " + editTitle + " - " + editDesc)
+        messages.add_message(request, messages.INFO, "You have successfully edited the rumour: " + editTitle)
 
         activityLog = Action(
             user = tempuser,
@@ -178,6 +195,10 @@ def edit(request, rumour_id):
         )
 
         activityLog.save()
+
+        if rumour not in tempuser.details.subscribed.all():
+            tempuser.details.subscribed.add(rumour)
+            tempuser.save()
 
         tempuser.details.check_level()
 
@@ -263,6 +284,10 @@ def vote(request):
 
             activityLog.save()
 
+            if rumour not in tempuser.details.subscribed.all():
+                tempuser.details.subscribed.add(rumour)
+                tempuser.save()
+
             tempuser.details.check_level()
 
             return JsonResponse({
@@ -279,7 +304,9 @@ def vote(request):
         return JsonResponse({'error': 'Invalid request'}, status=400)
         
 def addcomment(request):
-    if request.method == 'POST':
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+    
+    if is_ajax and request.method == "POST":
         temprumour = Rumour.objects.get(pk=request.POST.get("rumourid"))
         tempbody = request.POST.get("commentbody")
         tempuser = User.objects.get(pk=request.session.get('userid'))
@@ -299,13 +326,61 @@ def addcomment(request):
         )
 
         activityLog.save()
-
+        
+        if temprumour not in tempuser.details.subscribed.all():
+            tempuser.details.subscribed.add(temprumour)
+            tempuser.save()
+        
         tempuser.details.check_level()
 
-        #message for testing. replace with db code in next project
-        messages.add_message(request, messages.SUCCESS, "You have successfully posted a comment!")
+        return JsonResponse({
+            'success': 'success', 
+            'commenterUrl': tempuser.details.get_absolute_url(),
+            'commenter': tempuser.details.get_name(),
+            'id': newComment.pk,
+            'body': newComment.body,
+            'time': naturaltime(newComment.date)
+        }, status=200)
+        
+    else: 
+        return JsonResponse({'error': 'Invalid request'}, status=400)
 
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+def editcomment(request):
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+    
+    if is_ajax and request.method == "POST":
+        commentid = request.POST.get('id')
+        commentbody = request.POST.get('id')
+        editdate = datetime.now()
+
+        comment = Comment.objects.get(pk = commentid)
+        comment.body = commentbody
+        comment.edit = editdate
+
+        if comment.rumour not in comment.commenter.details.subscribed.all():
+            comment.commenter.details.subscribed.add(comment.rumour)
+            comment.commenter.save()
+
+    else: 
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def removecomment(request):
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+    
+    if is_ajax and request.method == "POST":
+        commentId = request.POST.get('id');
+
+        comment = Comment.objects.get(pk=commentId);
+
+        comment.delete();
+
+        return JsonResponse({
+            'success': 'success', 
+            'id': commentId,
+        }, status=200)
+        
+    else: 
+        return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def rumourget(request):
     is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'

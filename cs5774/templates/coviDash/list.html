@@ -23,7 +23,6 @@ All Rumours
 
 <!--As the urls are named rather conveniently for these, just pull the url name and capitalize-->
 <h1>{{ request.resolver_match.url_name|title }} </h1>
-{{ request.META.HTTP_REFERER }}
 {% if request.resolver_match.url_name == "admin" %}
 <section class="userlist listing-page">
     {% if request.resolver_match.url_name == "admin" %}
@@ -57,12 +56,12 @@ All Rumours
 
                 {% if request.session.role == "developer" and request.session.username != user.username %}
                  | <form class="delete-form" action="{% url "users:remove-user" %}" method="POST"
-                    data-id="{{ user.id }}" data-title="{{ user.username }}">
-                    {% csrf_token %}
-                    <input type="hidden" id="userId" name="userId" value="{{ user.id }}">
-                    <input type="hidden" id="userName" name="userName" value="{{ user.name }}">
-                    <input type="submit" value="Remove">
-                </form>
+                        data-id="{{ user.id }}" data-title="{{ user.username }}">
+                        {% csrf_token %}
+                        <input type="hidden" id="userId" name="userId" value="{{ user.id }}">
+                        <input type="hidden" id="userName" name="userName" value="{{ user.name }}">
+                        <input type="submit" value="Remove">
+                    </form>
                 {% endif %}
 
             </li>
@@ -174,7 +173,7 @@ All Rumours
                     {% endif %}
 
                     <div class="source">
-                        Poster: <span>{{ rumour.poster }}</span>
+                        Poster: <span>{{ rumour.poster.details.get_name }}</span>
                     </div>
                 </div>
 

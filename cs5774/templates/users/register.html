@@ -104,6 +104,11 @@
             <!--Hidden field to hold list of rumours-->
 
             <input type="submit" value={% if userdata %}"Edit User"{% else %}"Register!"{% endif %}>
+
+            {% if not request.session.username  %}
+            <div>Already have an account?</div>
+            <a href="{% url "users:login" %}">Login</a>
+            {% endif %}
         </form>
         
         <!--Prevent developer suicide-->

@@ -12,7 +12,9 @@ verbdict = {
     "RV": "voted",
     "AR": "added a rumour: ",
     "RE": "edited a rumour: ",
-    "DR": "added a rumour to their dashboard: "
+    "DR": "added a rumour to their dashboard: ",
+    "UP": "was promoted to Admin.",
+    "DP": "was demoted to Regular User.",
 }
 
 class Action(models.Model):

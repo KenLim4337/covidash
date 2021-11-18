@@ -18,8 +18,7 @@
         <div class="dash-row">
 
             <!--Rumour blocks (first 3)-->
-            {% for rumour in rumours %}
-            {% if rumour.id in userData.added|slice:":-1" %}
+            {% for rumour in dash|slice:":3" %}
             <div class="module-tile dash-module">
                 <div class="close"></div>
                 <div class="tile-image">
@@ -56,7 +55,7 @@
                     {% endif %}
 
                     <div class="source">
-                        Poster: <span>{{ rumour.poster.username }}</span>
+                        Poster: <span>{{ rumour.poster.details.get_name }}</span>
                     </div>
                 </div>
 
@@ -64,7 +63,6 @@
                     <a class="blue-cta" href="{% url "coviDash:rumour-detail" rumour.id %}">Read More</a>
                 </div>
             </div>
-            {% endif %}
             {% endfor %}
 
             <!--2 stats per block-->
@@ -94,8 +92,8 @@
         <!--Row with full tile-->
         <div class="dash-row">
             <!--Last rumour gets a full tile-->
-            {% for rumour in rumours %}
-            {% if rumour.id == userData.added|last %}
+            {% for rumour in dash %}
+            {% if forloop.last %}
             <div class="module-tile dash-module-full">
                 <div class="tile-image">
                     <img src="{{ rumour.img }}" alt="{{ rumour.title }}">
@@ -131,7 +129,7 @@
                     {% endif %}
 
                     <div class="source">
-                        Poster: <span>{{ rumour.poster.username }}</span>
+                        Poster: <span>{{ rumour.poster.details.get_name }}</span>
                     </div>
                 </div>
 
@@ -209,9 +207,7 @@
     <div class="module-group-wrapper">
         <div class="module-group-inner">
             <!--Other unadded rumours-->
-            {% for rumour in rumours|slice:":8"%}
-
-            {% if rumour.id not in userData.added %}
+            {% for rumour in rumours|slice:":4" %}
             <div class="module-tile">
                 <div class="tile-image">
                     <img src="{{ rumour.img }}" alt="{{ rumour.title }}">
@@ -247,7 +243,7 @@
                     {% endif %}
 
                     <div class="source">
-                        Poster: <span>{{ rumour.poster.username }}</span>
+                        Poster: <span>{{ rumour.poster.details.get_name }}</span>
                     </div>
                 </div>
 
@@ -256,7 +252,6 @@
                     <a class="read-cta" href="{% url "coviDash:rumour-detail" rumour.id %}">Read More</a>
                 </div>
             </div>
-            {% endif %}
             {% endfor %}
         </div>
     </div>
@@ -343,7 +338,7 @@
                     {% endif %}
 
                     <div class="source">
-                        Poster: <span>{{ rumour.poster.username }}</span>
+                        Poster: <span>{{ rumour.poster.details.get_name }}</span>
                     </div>
                 </div>
 

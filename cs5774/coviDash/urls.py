@@ -17,5 +17,7 @@ urlpatterns = [
     path('remove-rumour', views.delete, name='remove-rumour'),
     path('rumours/vote', views.vote, name='vote'),
     path('rumours/add-comment', views.addcomment, name='add-comment'),
+    path('rumours/edit-comment', views.editcomment, name='edit-comment'),
+    path('rumours/remove-comment', views.removecomment, name='remove-comment'),
 ]
  

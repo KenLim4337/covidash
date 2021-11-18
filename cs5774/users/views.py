@@ -4,12 +4,15 @@ from django.urls import resolve
 from django.http import JsonResponse
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from actions.models import Action
 
 def profile(request, username):
     tempuser = get_object_or_404(User, username__iexact=username)
+    actions = Action.objects.filter(user=tempuser).order_by('-date')[:20]
 
     return render(request, 'users/profile.html', {
-        'userdata': tempuser
+        'userdata': tempuser,
+        'actions': actions
     })
 
 def register(request):
@@ -95,9 +98,25 @@ def edit_user(request, username):
 
             if editRole == "admin": 
                 user.details.make_admin()
+
+                activityLog = Action(
+                    user = user,
+                    verb = "UP"
+                )
+
+                activityLog.save()
+
                 messages.add_message(request, messages.SUCCESS, "%s made into an Admin!" % user.username)
             elif editRole == "regular": 
                 user.details.strip_admin()
+                
+                activityLog = Action(
+                    user = user,
+                    verb = "DP"
+                )
+
+                activityLog.save()
+
                 messages.add_message(request, messages.SUCCESS, "%s removed as an Admin!" % user.username)
 
             user.save()

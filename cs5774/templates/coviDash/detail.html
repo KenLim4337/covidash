@@ -15,8 +15,13 @@
 
         <h1>{{ rumour.title }}</h1>
 
-        <p class="author">Posted by: <em>{{ rumour.poster.username }}</em></p>
-        <p class="date">{{ rumour.date|naturaltime }}</p>
+        <div class="rumour-meta">
+            <p class="author">Posted by: <em>{{ rumour.poster.details.get_name }}</em></p>
+            <p class="date">Posted: <em>{{ rumour.date|naturaltime }}</em></p>
+            {% if rumour.edited %}
+            <p class="editdate">Last Edit: <em>{{ rumour.edited|naturaltime }}</em></p>
+            {% endif %}
+        </div>
 
         <div class="main-content">
 
@@ -130,7 +135,7 @@
             <div class="article-comments">
                 <ul>
                     {% for comment in comments %}
-                    <li>
+                    <li data-id="{{ comment.id }}">
                         <div class="upvotes" data-id="{{ comment.id }}">
                             <div class="chev-up"></div>
                             <div class="vote-number">{{ comment.get_updoots }}</div>
@@ -144,15 +149,21 @@
                         </div>
                         <div class="comment-body">
                             <div class="user-name">
-                                <a href="{% url "users:profile" comment.commenter.username %}">{{ comment.commenter.username }}</a>
+                                <a href="{% url "users:profile" comment.commenter.username %}">{{ comment.commenter.details.get_name }}</a>
                             </div>
                             <div class="comment-text">
-                                {{ comment.body }}
+                                <div class="body">{{ comment.body }}</div>
+                                <div class="meta">
+                                    <p class="postdate">Posted: <em>{{ comment.date|naturaltime }}</em></p>
+                                    {% if rumour.edited %}
+                                    <p class="editdate">Last Edit: <em>{{ comment.edited|naturaltime }}</em></p>
+                                    {% endif %}
+                                </div> 
                             </div>
                             {% if comment.commenter.id == request.session.userid or request.session.role == 'admin' or request.session.role == 'developer' %}
                             <div class="comment-controls" data-id="{{ comment.id }}">
-                                <a href="#">Edit</a>
-                                <a href="#">Delete</a>
+                                <a href="#" class="edit-btn">Edit</a>
+                                <a href="#" class="delete-btn" >Delete</a>
                             </div>
                             {% endif %}
                         </div>
@@ -177,9 +188,9 @@
                         <textarea id="commentbody" name="commentbody"
                             placeholder="What do you think about this rumour?" required></textarea>
                         
-                        <input type="hidden" name="rumourid" value="{{rumour.id}}">
+                        <input type="hidden" id="rumourid" name="rumourid" value="{{rumour.id}}">
 
-                        <input type="submit" value="Comment">
+                        <input type="submit" value="Comment" data-ajax-url="{% url "coviDash:add-comment" %}">
                     </form>
                 </div>
                 {% endif %}

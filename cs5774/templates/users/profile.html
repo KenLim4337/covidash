@@ -14,7 +14,7 @@
 {% endif %}
 
 <section class="user-profile">
-    <h1>{{ userdata.username }}'s Profile</h1>
+    <h1>{{ userdata.details.get_name }}'s Profile</h1>
 
     {% if request.session.role == "admin" and userdata.details.role != "admin" and userdata.details.role != "developer" %}
     <div class="controls">
@@ -30,13 +30,21 @@
         <dl>
             <dt>User Name</dt>
             <dd>{{ userdata.username }}</dd>
+            <dt>First Name</dt>
+            <dd>{{ userdata.first_name }}</dd>
+            <dt>Last Name</dt>
+            <dd>{{ userdata.last_name }}</dd>
             <dt>Email address</dt>
             <dd>{{ userdata.email }}</dd>
             <dt>Title</dt>
-            <dd>Level {{ userdata.details.level }} {{ userdata.details.get_title }}</dd>
+            <dd>{{ userdata.details.get_title }}</dd>
         </dl>
     </div>
 
 </section>
+
+
+<!--Activity Feed-->
+{% include "actions/feed.html" %}
 
 {% endblock %}
