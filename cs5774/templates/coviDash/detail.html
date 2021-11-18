@@ -155,7 +155,7 @@
                                 <div class="body">{{ comment.body }}</div>
                                 <div class="meta">
                                     <p class="postdate">Posted: <em>{{ comment.date|naturaltime }}</em></p>
-                                    {% if rumour.edited %}
+                                    {% if comment.edited %}
                                     <p class="editdate">Last Edit: <em>{{ comment.edited|naturaltime }}</em></p>
                                     {% endif %}
                                 </div> 

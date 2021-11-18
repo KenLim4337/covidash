@@ -84,6 +84,9 @@ class Comment(models.Model):
         if updoots == None:
             updoots = 0
         return updoots
+    
+    def get_absolute_url(self):
+        return reverse('coviDash:rumour-detail', args=[self.rumour.id])
 
 class Updoots(models.Model):
     voter = models.ForeignKey(User, on_delete=models.CASCADE)

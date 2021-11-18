@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib import messages
 from django.urls import resolve
 from django.http import JsonResponse
-from django.db import models
 from .models import Rumour, Vote, Comment, Updoots, Source
 from actions.models import Action
 from django.contrib.auth.models import User
@@ -350,17 +349,25 @@ def editcomment(request):
     
     if is_ajax and request.method == "POST":
         commentid = request.POST.get('id')
-        commentbody = request.POST.get('id')
+        commentbody = request.POST.get('body')
         editdate = datetime.now()
 
         comment = Comment.objects.get(pk = commentid)
         comment.body = commentbody
-        comment.edit = editdate
+        comment.edited = editdate
+
+        comment.save()
 
         if comment.rumour not in comment.commenter.details.subscribed.all():
             comment.commenter.details.subscribed.add(comment.rumour)
             comment.commenter.save()
 
+        return JsonResponse({
+            'success': 'success', 
+            'id': comment.pk,
+            'body': comment.body,
+            'time': naturaltime(editdate)
+        }, status=200)
     else: 
         return JsonResponse({'error': 'Invalid request'}, status=400)
 

@@ -29,6 +29,13 @@ const commentTemplate = `
     </li>
 `
 
+const editCommentTemplate = `
+    <form action="#" class="comment-edit-form" data-id=0 >
+        <textarea name="newComment" id="newComment" required></textarea>
+        <input type="submit" value="Comment" date-id=0 >
+    </form>
+`
+
 const deleteBox = '<div class="delete-box"><div class="delete-inner"><div class="delete-head">Really delete "<span class="delete-title"></span>"?</div><div class="delete-buttons"><button class="delete-yes">Yes</button><button class="delete-no">No</button></div></div></div><div class="delete-overlay"></div>'
 
 
@@ -154,15 +161,74 @@ $(document).ready(() => {
             e.preventDefault();
             e.stopPropagation();
 
+            $('.article-comments ul li .comment-text, .article-comments ul li .comment-controls').show();
+            $('.article-comments ul li .comment-edit-form').remove();
+
+            var wrapper = $(this).parents('li');
+            var template = $(editCommentTemplate)
             var editid = $(this).parents('.comment-controls').data('id');
+            var currentComment = wrapper.find('.comment-text .body').text();
 
-            tempBox.find('.delete-head').text("Really delete this comment?");
+            template.find('textarea').text(currentComment);
             
-            tempBox.find('.delete-yes').attr('data-id', deleteid).removeClass('delete-yes').addClass('delete-comment-yes');
+            template.attr('data-id', editid);
+            
+            template.find('input[type="submit"]').attr('data-id', editid);
+            
+            wrapper.find('.comment-text, .comment-controls').hide();
 
-            $('body').append(tempBox);
+            wrapper.find('.comment-body').append(template);
+        });
 
-            $('body').addClass('showDelete');
+        
+        $('body').on('click', '.article-comments ul li .comment-edit-form input[type="submit"]', function(e){
+            e.preventDefault();
+            e.stopPropagation();
+
+            var editid = $(this).data('id');
+            var newbody = $(this).parent().find('#newComment').val();
+
+            if(newbody.length > 0) {
+                $('.comment-error').remove();
+
+                $.ajax({
+                    url: '/rumours/edit-comment',
+                    data: {
+                        id: editid,
+                        body: newbody
+                    },
+                    type:'POST',
+                    dataType: "json",
+                    headers: {'X-CSRFToken': csrftoken}
+                }).done(function(json){
+    
+                    var targetid = json.id;
+                    var targetbody = json.body;
+                    var targettime = json.time;
+    
+                    $('.article-comments ul li .comment-text, .article-comments ul li .comment-controls').show();
+                    $('.article-comments ul li .comment-edit-form').remove();
+    
+                    $('.article-comments ul li[data-id="'+targetid+'"] .comment-text .body').text(targetbody);
+    
+                    if($('.article-comments ul li[data-id="'+targetid+'"] .meta .editdate').length > 0) {
+                        $('.article-comments ul li[data-id="'+targetid+'"] .meta .editdate em').text(targettime);
+                    } else {
+                        $('.article-comments ul li[data-id="'+targetid+'"] .meta').append('<p class="editdate">Last Edit: <em>'+targettime+'</em></p>')
+                    }
+    
+                    $('.article-comments ul li[data-id="'+targetid+'"]').addClass('highlight-comment');
+    
+                    setTimeout(function(){
+                        $('.article-comments ul li').removeClass('highlight-comment');
+                    },5000);
+                }).fail(function(xhr,status,errorThrown){
+                    console.log("Error: " + errorThrown);
+                })
+            } else {
+                $('.comment-error').remove();
+                $(this).parent().find('#newComment').before('<div class="comment-error">New comment cannot be empty</div>')
+            }
         });
 
     }
@@ -220,6 +286,7 @@ $(document).ready(() => {
                 console.log("Error: " + errorThrown);
             })
         } else {
+            $('.vote-error, .vote-success').remove();
             $('#votetrue').after('<div class="vote-error">Please select a validity</div>')
         }
     });
