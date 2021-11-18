@@ -13,8 +13,9 @@ verbdict = {
     "AR": "added a rumour: ",
     "RE": "edited a rumour: ",
     "DR": "added a rumour to their dashboard: ",
-    "UP": "was promoted to Admin.",
-    "DP": "was demoted to Regular User.",
+    "UP": "was promoted to <em>Admin</em>",
+    "DP": "was demoted to <em>Regular User</em>",
+    "CT": "is now a "
 }
 
 class Action(models.Model):
@@ -28,5 +29,8 @@ class Action(models.Model):
     date = models.DateTimeField(default=datetime.now, blank=True, null=True)
 
     def get_verb(self): 
-        return verbdict.get(self.verb)
+        if self.verb != "CT":
+            return verbdict.get(self.verb)
+        else: 
+            return verbdict.get(self.verb) + '<em>'+ self.user.details.get_title() + '</em>'
 

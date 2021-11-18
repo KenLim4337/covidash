@@ -15,22 +15,32 @@ def home(request):
     if request.session.get('userid', None) != None:
         tempUser = User.objects.get(pk=request.session.get('userid', None))
 
+        #Rumours tied to the user
         involvedRumours = tempUser.details.subscribed.all().values_list('pk') | Rumour.objects.filter(poster=tempUser).values_list('pk')
 
-        #Newest first, limit to 20 items
+        #Votes relating to user based on rumours
+        involvedVotes = Vote.objects.filter(rumour_id__in=involvedRumours)
+
+        #Comments related based on rumours
+        involvedComments = Comment.objects.filter(rumour_id__in=involvedRumours)
+
+        #Query actions for all actions relating to user
+        actions = Action.objects.filter(user=tempUser) | Action.objects.filter(target_ct=ContentType.objects.get_for_model(Rumour).id, target_id__in=involvedRumours) | Action.objects.filter(target_ct=ContentType.objects.get_for_model(Vote).id, target_id__in=involvedVotes) | Action.objects.filter(target_ct=ContentType.objects.get_for_model(Comment).id, target_id__in=involvedComments)
         
-        print(ContentType.objects.get_for_model(Rumour).id)
+        #Add promotions and demotions if admin or dev
+        if request.session.get('role') != 'regular':
+            actions = actions | Action.objects.filter(verb__in=['UP','DP'])
 
-        actions = Action.objects.filter(user=tempUser) | Action.objects.filter(target_ct=ContentType.objects.get_for_model(Rumour).id, target_id__in=involvedRumours).order_by('-date')
+        #Filter out dupes, newest first
+        actions = actions.distinct().order_by('-date')[:20]
 
-        #actions = Action.objects.all().order_by('-date')
-
+        #Temporary dashboard list
         added = Rumour.objects.filter().values_list('pk').order_by('-date')[:4]
 
         #Get numbers 
-        numPoster = Rumour.objects.filter(poster = tempUser).count()
-        numCited = Source.objects.filter(commenter = tempUser).count()
-        numSolved = Comment.objects.filter(commenter = tempUser).values('rumour').distinct().count()
+        numPoster = tempUser.details.get_posted()
+        numCited = tempUser.details.get_cited()
+        numSolved = tempUser.details.get_solved()
 
         userData = {
             #mess around with added later
@@ -144,6 +154,7 @@ def add(request):
 
         activityLog.save()
 
+        #Subscribe user to the rumour
         tempuser.details.subscribed.add(newRumour)
         tempuser.save()
 
@@ -195,6 +206,7 @@ def edit(request, rumour_id):
 
         activityLog.save()
 
+        #Subscribe user to the rumour if not already subscribed
         if rumour not in tempuser.details.subscribed.all():
             tempuser.details.subscribed.add(rumour)
             tempuser.save()
@@ -213,6 +225,14 @@ def edit(request, rumour_id):
 def delete(request):
     #get posted stuff
     removeId = request.POST.get("rumourId")
+
+    commentIds = Comment.objects.filter(rumour_id = removeId).values_list('pk')
+    voteIds = Vote.objects.filter(rumour_id = removeId).values_list('pk')
+
+    #Clear actions, comments and votes with this rumour
+    Action.objects.filter(target_ct=ContentType.objects.get_for_model(Rumour).id, target_id=removeId).delete()
+    Action.objects.filter(target_ct=ContentType.objects.get_for_model(Comment).id, target_id__in=commentIds).delete()
+    Action.objects.filter(target_ct=ContentType.objects.get_for_model(Vote).id, target_id__in=voteIds).delete()
 
     rumour = Rumour.objects.get(pk=removeId)
 
@@ -238,22 +258,32 @@ def vote(request):
 
             if validity == "true": 
                 #True
-                rumour.verusersT += 1
                 val = 1
 
             elif validity == "false": 
                 #False
-                rumour.verusersF += 1
                 val = -1
+                    
+            vote = Vote (
+                voter = tempuser,
+                rumour = rumour,
+                validity = val,
+            )
 
-            #Update total for other uses
-            rumour.verusers = rumour.verusersT + rumour.verusersF
+            vote.save()
 
-            #Calculate ratio and update validity
-            fpercent = (rumour.verusersF/(rumour.verusersT+rumour.verusersF)) * 100;
+            #Update validity tag
+            voteList = Vote.objects.filter(rumour = rumour)
 
-            #More than 10 comments before tweaking validity
-            if rumour.verusers > 10: 
+            trueVotes = voteList.filter(validity = 1).count()
+
+            falseVotes = voteList.filter(validity = -1).count()
+
+            totalVotes = trueVotes + falseVotes
+
+            fpercent = falseVotes/totalVotes
+
+            if totalVotes > 10: 
                 #More than 60% false = false (% are arbitrary)
                 if fpercent > 60:
                     rumour.validity = "False"
@@ -263,17 +293,9 @@ def vote(request):
                 #Otherwise = true
                 else:
                     rumour.validity = "Mixed"
-                    
+
             #save to db
             rumour.save()
-
-            vote = Vote (
-                voter = tempuser,
-                rumour = rumour,
-                validity = val,
-            )
-
-            vote.save()
 
             activityLog = Action(
                 user = tempuser,
@@ -283,6 +305,7 @@ def vote(request):
 
             activityLog.save()
 
+            #Subscribe user to the rumour if not already subscribed
             if rumour not in tempuser.details.subscribed.all():
                 tempuser.details.subscribed.add(rumour)
                 tempuser.save()
@@ -326,6 +349,7 @@ def addcomment(request):
 
         activityLog.save()
         
+        #Subscribe user to the rumour if not already subscribed
         if temprumour not in tempuser.details.subscribed.all():
             tempuser.details.subscribed.add(temprumour)
             tempuser.save()
@@ -336,6 +360,7 @@ def addcomment(request):
             'success': 'success', 
             'commenterUrl': tempuser.details.get_absolute_url(),
             'commenter': tempuser.details.get_name(),
+            'commenterTitle': tempuser.details.get_title(),
             'id': newComment.pk,
             'body': newComment.body,
             'time': naturaltime(newComment.date)
@@ -358,6 +383,7 @@ def editcomment(request):
 
         comment.save()
 
+        #Subscribe user to the rumour if not already subscribed
         if comment.rumour not in comment.commenter.details.subscribed.all():
             comment.commenter.details.subscribed.add(comment.rumour)
             comment.commenter.save()
@@ -372,12 +398,16 @@ def editcomment(request):
         return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def removecomment(request):
+    #Pretty much the same as removing anything else
     is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
     
     if is_ajax and request.method == "POST":
         commentId = request.POST.get('id');
 
         comment = Comment.objects.get(pk=commentId);
+
+        #Find actions with this comment and delete
+        Action.objects.filter(target_ct=ContentType.objects.get_for_model(Comment).id, target_id=commentId).delete()
 
         comment.delete();
 

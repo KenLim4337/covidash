@@ -951,6 +951,10 @@ form.delete-form input[type="submit"]:hover {
   text-decoration: underline;
 }
 
+article .article-inner {
+  min-height: 420px;
+}
+
 article .controls {
   display: flex;
   justify-content: flex-end;
@@ -2080,6 +2084,10 @@ form.form-dark > label, form.form-dark > input, form.form-dark > textarea {
   width: 100%;
 }
 
+form.form-dark > input[type="checkbox"] {
+  width: auto;
+}
+
 form.form-dark > label {
   margin-bottom: 10px;
   font-family: 'Roboto Slab', serif;
@@ -2450,7 +2458,7 @@ article .social-section .article-comments ul li .comment-body {
   position: relative;
   width: calc(100% - 130px);
   min-height: 50px;
-  padding-right: 120px;
+  padding-right: 15px;
 }
 
 article .social-section .article-comments ul li .comment-body .user-name {

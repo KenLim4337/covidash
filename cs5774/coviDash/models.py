@@ -26,13 +26,6 @@ class Rumour(models.Model):
     #Rel to user
     poster = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    #Verification stats and things mostly votes
-    verusersF = models.IntegerField(default=0)
-    verusersT = models.IntegerField(default=0)
-
-    #Sum of the two
-    verusers = models.IntegerField(default=0)
-
     #Will be replaced by foreign keys
     versourceF = models.IntegerField(default=0)
     versourceT = models.IntegerField(default=0)
@@ -100,7 +93,7 @@ class Vote(models.Model):
     validity = models.CharField(max_length=200, default="False")
 
     def __str__(self):
-        return "<span>" + (upvote_to_text[self.validity] + " on the rumour: </span>" + self.rumour.title)
+        return "<span><em>" + (upvote_to_text[self.validity] + "</em> on the rumour:</span> <span class='target-title'>" + self.rumour.title + "</span>")
 
     def get_absolute_url(self):
         return reverse('coviDash:rumour-detail', args=[self.rumour.id])

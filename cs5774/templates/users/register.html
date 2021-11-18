@@ -105,11 +105,12 @@
 
             <input type="submit" value={% if userdata %}"Edit User"{% else %}"Register!"{% endif %}>
 
-            {% if not request.session.username  %}
-            <div>Already have an account?</div>
-            <a href="{% url "users:login" %}">Login</a>
-            {% endif %}
         </form>
+        
+        {% if not request.session.username  %}
+        <div>Already have an account?</div>
+        <a href="{% url "users:login" %}">Login</a>
+        {% endif %}
         
         <!--Prevent developer suicide-->
         {% if request.session.role == "developer" and request.session.username != userdata.username %}

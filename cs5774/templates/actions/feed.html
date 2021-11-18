@@ -4,11 +4,19 @@
 
 <h2>Recent Activity</h2>
 
-<ul>
-    {% for action in actions %}
-    <li><a href="{{ action.user.details.get_absolute_url }}">{{ action.user.details.get_name }}</a> {{ action.get_verb }} <a href="{{ action.target.get_absolute_url }}">{% if action.target %}{{ action.target|safe }}{% endif %}</a> ({{ action.date|naturaltime }})</li>
+<div class="activity-wrap">
+    <div class="activity-inner">
+        <ul>
+            <!--20 items to start-->
+            {% for action in actions %}
+                <li><a href="{{ action.user.details.get_absolute_url }}">{{ action.user.details.get_name }}</a> {{ action.get_verb|safe }} {% if action.target %}<a class="target-link" href="{{ action.target.get_absolute_url }}">{{ action.target|safe }}</a>{% endif %} ({{ action.date|naturaltime }})</li>
+            {% empty %}
+            <div class="no-result">No activity to show yet... Help fight Covid misinformation now!<a href="{% url "coviDash:rumours" %}" class="blue-cta">Browse all Rumours</a></div>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
 
-    {% empty %}
-    <div class="no-result">No activity to show yet... Help fight Covid misinformation now!<a href="{% url "coviDash:rumours" %}" class="blue-cta">Browse all Rumours</a></div>
-    {% endfor %}
-</ul>
+
+{% if action.target or action.verb == "CT" or action.verb == 'UP' or action.verb == 'DP' %}
+{% endif %}

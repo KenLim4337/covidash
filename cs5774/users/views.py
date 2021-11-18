@@ -8,6 +8,8 @@ from actions.models import Action
 
 def profile(request, username):
     tempuser = get_object_or_404(User, username__iexact=username)
+
+    #Newest user updates
     actions = Action.objects.filter(user=tempuser).order_by('-date')[:20]
 
     return render(request, 'users/profile.html', {
@@ -73,24 +75,21 @@ def edit_user(request, username):
             oldPass = request.POST.get("oldpassword")
             editRole = request.POST.get("makeadmin")
 
-            #Check match old password before going forward
-            
             
             if editName: 
                 user.username = editName
-
             
             if editFName: 
                 user.first_name = editFName
 
-            
             if editLName: 
                 user.last_name = editLName
 
             if editEmail: 
                 user.email = editEmail.lower()
 
-            if editPass: 
+            if editPass:
+                #Check match old password before going forward
                 if not user.check_password(oldPass):
                     messages.add_message(request, messages.WARNING, "Old password does not match current password")
                     return redirect('users:edit-user', username=user.username.lower())
@@ -107,6 +106,7 @@ def edit_user(request, username):
                 activityLog.save()
 
                 messages.add_message(request, messages.SUCCESS, "%s made into an Admin!" % user.username)
+
             elif editRole == "regular": 
                 user.details.strip_admin()
                 

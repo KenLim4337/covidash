@@ -30,9 +30,9 @@ const commentTemplate = `
 `
 
 const editCommentTemplate = `
-    <form action="#" class="comment-edit-form" data-id=0 >
+    <form action="#" class="comment-edit-form form-dark" data-id=0 >
         <textarea name="newComment" id="newComment" required></textarea>
-        <input type="submit" value="Comment" date-id=0 >
+        <input type="submit" value="Edit" date-id=0 >
     </form>
 `
 
@@ -73,36 +73,51 @@ $(document).ready(() => {
             e.preventDefault();
             e.stopPropagation();
 
-            //Run Ajax
-            $.ajax({
-                url: $(this).data('ajax-url'),
-                data: {
-                    rumourid: $('.article-comment-upload #rumourid').val(),
-                    commentbody: $('.article-comment-upload #commentbody').val()
-                },
-                type:'POST',
-                dataType: "json",
-                headers: {'X-CSRFToken': csrftoken}
-            }).done(function(json){
+            //Check if comment is empty
+            if($('.article-comment-upload #commentbody').val().length > 0) {
+                $('.comment-add-error').remove();
+                //Run Ajax
+                $.ajax({
+                    url: $(this).data('ajax-url'),
+                    data: {
+                        rumourid: $('.article-comment-upload #rumourid').val(),
+                        commentbody: $('.article-comment-upload #commentbody').val()
+                    },
+                    type:'POST',
+                    dataType: "json",
+                    headers: {'X-CSRFToken': csrftoken}
+                }).done(function(json){
 
-                $('.article-comments ul').prepend(jsonToComment(json));
+                    //Add new comment
+                    $('.article-comments ul').prepend(jsonToComment(json));
 
-                $('.article-comment-upload #commentbody').val('');
-                $('html,body').animate({
-                    scrollTop: $('.comment-block').offset().top - 40
-                })
+                    $('.article-comment-upload #commentbody').val('');
+                    $('html,body').animate({
+                        scrollTop: $('.comment-block').offset().top - 40
+                    })
 
-                $('.article-comments ul li:eq(0)').addClass('highlight-comment');
-
-                setTimeout(function(){
+                    //Remove other highlights first
                     $('.article-comments ul li').removeClass('highlight-comment');
-                },5000);
 
-                $('.article-comments .no-result').remove();
+                    $('.article-comments ul li:eq(0)').addClass('highlight-comment');
 
-            }).fail(function(xhr,status,errorThrown){
-                console.log("Error: " + errorThrown);
-            })
+                    setTimeout(function(){
+                        $('.article-comments ul li').removeClass('highlight-comment');
+                    },5000);
+
+                    //Remove no result message if present
+                    $('.article-comments .no-result').remove();
+                    
+                    $('.comment-block .accordion-head .comments-num').text($('.article-comments ul li').length)
+
+                }).fail(function(xhr,status,errorThrown){
+                    console.log("Error: " + errorThrown);
+                })
+            } else {
+                $('.comment-add-error').remove();
+                $('.article-comment-upload form .form-title').after('<div class="comment-add-error">Comment cannot be empty</div>')
+            }
+            
         });
 
         //Delete stuff
@@ -151,6 +166,8 @@ $(document).ready(() => {
                 $('html,body').animate({
                     scrollTop: $('.comment-block').offset().top - 40
                 })
+
+                $('.comment-block .accordion-head .comments-num').text($('.article-comments ul li').length)
             }).fail(function(xhr,status,errorThrown){
                 console.log("Error: " + errorThrown);
             })
@@ -216,6 +233,9 @@ $(document).ready(() => {
                     } else {
                         $('.article-comments ul li[data-id="'+targetid+'"] .meta').append('<p class="editdate">Last Edit: <em>'+targettime+'</em></p>')
                     }
+
+                    //Remove other highlights first
+                    $('.article-comments ul li').removeClass('highlight-comment');
     
                     $('.article-comments ul li[data-id="'+targetid+'"]').addClass('highlight-comment');
     
@@ -775,6 +795,8 @@ function jsonToComment(json) {
 
     newComment.find('.user-icon a, .user-name a').attr('href', commentData.commenterUrl);
     
+    newComment.find('.user-name a').after(' | ' + commentData.commenterTitle);
+
     newComment.find('.user-name a').text(commentData.commenter);
 
     newComment.find('.comment-text .body').text(commentData.body);

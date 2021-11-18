@@ -62,7 +62,7 @@
 
                     <div class="validation-stats">
                         Verified by <span class="validation-numbers">
-                            <span class="usernum">{{ rumour.verusers }}</span> <a href="#vote">Users</a>
+                            <span class="usernum">{{ rumour.get_votes.true|add:rumour.get_votes.false }}</span> <a href="#vote">Users</a>
                             and <span class="sourcenum">{{ rumour.versource }}</span> <a href="#sources">Sources</a>
                     </div>
 
@@ -130,7 +130,7 @@
 
         <!--Comment section-->
         <div class="comment-block" id="comments">
-            <h2 class="accordion-head">Comments ({{ comments.count }}) <span class="chev-up"></span></h2>
+            <h2 class="accordion-head">Comments (<span class="comments-num">{{ comments.count }}</span>) <span class="chev-up"></span></h2>
 
             <div class="article-comments">
                 <ul>
@@ -149,7 +149,7 @@
                         </div>
                         <div class="comment-body">
                             <div class="user-name">
-                                <a href="{% url "users:profile" comment.commenter.username %}">{{ comment.commenter.details.get_name }}</a>
+                                <a href="{% url "users:profile" comment.commenter.username %}">{{ comment.commenter.details.get_name }}</a> | {{ comment.commenter.details.get_title }}
                             </div>
                             <div class="comment-text">
                                 <div class="body">{{ comment.body }}</div>
