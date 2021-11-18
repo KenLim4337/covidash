@@ -2736,3 +2736,117 @@ article .social-section .article-comments ul li .comment-body .truth .validity {
       min-height: calc(100vh - 153px)
   }
 }
+
+.login-form .login-form-inner > div, .registration-form .register-form-inner > div  {
+  text-align: center;
+  margin-top: 25px;
+}
+
+.login-form .login-form-inner > a, .registration-form .register-form-inner > a {
+  max-width: 200px;
+  margin: 5px auto 0;
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  font-size: 1.1rem;
+  color: #055faa;
+}
+
+.login-form .login-form-inner > a:hover, .registration-form .register-form-inner > a:hover {
+text-decoration: underline;
+}
+
+article .rumour-meta, article .comment-text .meta {
+  display: flex;
+  justify-content: flex-start;
+}
+
+article .rumour-meta p, article .comment-text .meta p {
+  margin: 15px 25px 10px 0;
+}
+
+article .article-comments ul li {
+  padding: 15px 0;
+  transition: 0.4s ease background;
+  border-radius: 5px;
+}
+
+article .article-comments ul li.highlight-comment {
+  background: rgba(5,95,170,0.1);
+}
+
+article .article-comments .comment-controls a {
+  margin-right: 10px;
+}
+
+article .article-comments textarea#newComment {
+  width: 100%;
+  margin: 10px 0;
+}
+
+article .article-comments form.form-dark > input[type="submit"] {
+  margin-top: 10px;
+}
+
+.userlist.listing-page ul li {
+  margin: 10px 0;
+}
+
+.demote-form, .userlist.listing-page form.delete-form {
+  display: inline;    
+}
+
+.demote-form input[type="submit"], .userlist.listing-page form.delete-form input[type="submit"] {
+  display: inline;
+  text-align: left;
+  width: auto;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  color: -webkit-link;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  text-decoration: underline;
+}
+
+.demote-form input[type="submit"]:hover, .userlist.listing-page form.delete-form input[type="submit"]:hover {
+  border: none;
+  background: none;
+}
+
+.activity-wrap .activity-inner ul li {
+  margin-bottom: 10px;
+}
+
+.profile-inner dl dd {
+  margin-left: 0;
+  margin-bottom: 15px;
+}
+
+.profile-inner dl dt {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.activity-inner .no-result .blue-cta {
+  width: 200px;
+  padding: 10px 5px;
+  margin: 15px auto 0;
+}
+
+.activity-inner ul li > a.target-link {
+  text-decoration: none;
+}
+
+.activity-inner ul li > a.target-link > span:not(.target-title) {
+  color: #000;
+  text-decoration: none;
+}
+
+.activity-inner ul li > a.target-link:hover .target-title  {
+  text-decoration: underline;
+}
+
+
+

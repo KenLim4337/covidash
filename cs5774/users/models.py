@@ -64,11 +64,17 @@ class Details(models.Model):
 
 @receiver(post_save, sender=User)
 def create_user_details(sender, instance, created, **kwargs):
-        if created:
-            Details.objects.create(user=instance)
+    if kwargs['raw']:
+        return
+
+    if created:
+        Details.objects.create(user=instance)
 
 @receiver(post_save, sender=User)
 def save_user_details(sender, instance, **kwargs):
+    if kwargs['raw']:
+        return
+        
     instance.details.save()
 
         
